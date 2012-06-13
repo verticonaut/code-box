@@ -1,0 +1,12 @@
+# encoding: utf-8
+---
+de:
+  activerecord:
+    code/sample_class:
+      values:
+        gender_code:
+          f: weiblich
+          m: männlich
+        country_iso:
+          de: Deutschland
+          ch: Schweiz
