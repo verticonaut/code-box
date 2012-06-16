@@ -7,8 +7,10 @@ class TestCodeAttribute < Test::Unit::TestCase
   def setup
   end
 
-  def test_acts_as_code_i18n_lookup
-    obj = Code::SampleClass.new(gender_code: 'f', country_iso: 'de')
+  # :type => :i18n -------------------------------------------------------------------
+  def test_code_attribute_i18n_lookup
+    obj = Codes::SampleClass.new(gender_code: 'f', country_iso: 'de')
+    I18n.locale =:en
 
     assert_equal('f',      obj.gender_code)
     assert_equal('female', obj.gender)
@@ -22,14 +24,64 @@ class TestCodeAttribute < Test::Unit::TestCase
     assert_equal('de',          obj.country_iso)
     assert_equal('Deutschland', obj.country(:de))
 
-    # I18n.locale = :de
-
-    # assert_equal(obj.gender_code, 'f')
-    # assert_equal(obj.gender, 'weiblich')
-
-    # assert_equal(obj.country_iso, 'de')
-    # assert_equal(obj.country, 'Deutschland')
   end
 
+  def test_code_attribute_i18n_translator_with_single_code
+    I18n.locale = :de
+    translation = Codes::SampleClass.translate_gender_code('f')
+    assert_equal('weiblich', translation)
+
+    translation = Codes::SampleClass.translate_gender_code('f', :en)
+    assert_equal('female', translation)
+  end
+
+  def test_code_attribute_i18n_translator_with_multiple_codes
+    I18n.locale = :de
+    translation = Codes::SampleClass.translate_gender_code(['f', 'm'])
+
+    assert translation.kind_of? Array
+    assert_equal('weiblich', translation.first)
+    assert_equal('männlich', translation.last)
+
+    translation = Codes::SampleClass.translate_gender_code(['f', 'm'], :en)
+
+    assert translation.kind_of? Array
+    assert_equal('female', translation.first)
+    assert_equal('male', translation.last)
+  end
+
+
+  # :type => :lookup -------------------------------------------------------------------
+  def test_code_attribute_lookup_default
+    code_single  = Codes::CivilStatus.lookup('single')
+    code_married = Codes::CivilStatus.lookup('married')
+
+    code_client  = Codes::SampleClass.new(:civil_status_code => 'single')
+
+    assert_equal('single',    code_client.civil_status_code)
+    assert_equal(code_single, code_client.civil_status)
+  end
+
+  def test_code_attribute_lookup_custom_code_name
+    code_child    = Codes::AgerType.new('child')
+    code_teenager = Codes::AgerType.new('teenager')
+
+    code_client  = Codes::SampleClass.new(:ager_type_code => 'child')
+
+    assert_equal('child',    code_client.ager_type_code)
+    assert_equal(code_child, code_client.ager_type)
+  end
+
+
+  # :type => :associated ----------------------------------------------------------------
+  def test_code_attribute_lookup_associated
+    code_ch  = Codes::Country.create(:code => 'CH', :name => 'Switzerland')
+    code_de  = Codes::Country.create(:code => 'DE', :name => 'Germany')
+
+    code_client  = Codes::SampleClass.new(:country_2_code => 'CH')
+
+    assert_equal('CH',    code_client.country_2_code)
+    assert_equal(code_ch, code_client.country_2)
+  end
 
 end

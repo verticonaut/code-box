@@ -2,7 +2,7 @@
 ---
 de:
   activerecord:
-    code/sample_class:
+    codes/sample_class:
       values:
         gender_code:
           f: weiblich

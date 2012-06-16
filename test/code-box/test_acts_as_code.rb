@@ -4,11 +4,33 @@ require 'helper'
 
 class TestActsAsCode < Test::Unit::TestCase
 
-  def setup
 
+  def test_constants
+    assert_equal 'single', Codes::CivilStatus::CodeSingle
   end
 
-  def test_author_attributes_available
-    assert_equal 1,1
+  def test_constants
+    assert_equal 2, Codes::CivilStatus::all.size
+
+    assert_equal Codes::CivilStatus.lookup('single'),  Codes::CivilStatus::all.first
+    assert_equal Codes::CivilStatus.lookup('married'), Codes::CivilStatus::all.last
   end
+
+
+  def test_ar_code_all
+    Codes::ArCode.create(:code => 'code_1', :name => "Code_1_name")
+    Codes::ArCode.create(:code => 'code_2', :name => "Code_2_name")
+
+    assert_equal 2, Codes::ArCode.all.size
+  end
+
+
+  def test_ar_code_lookup
+    code_1 = Codes::ArCode.create(:code => 'code_1', :name => "Code_1_name")
+    code_2 = Codes::ArCode.create(:code => 'code_2', :name => "Code_2_name")
+
+    assert_equal code_2, Codes::ArCode.lookup('code_2')
+  end
+
+
 end
