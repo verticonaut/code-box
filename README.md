@@ -31,6 +31,7 @@ There are several options to specify an attribute as a code:
 #### Lookup through I18n
 
 Example
+
     class Person
       iclude CodeBox::CodeAttribute
 
@@ -46,6 +47,7 @@ The include will create the following methods in Person:
 #### Lookup through code object
 
 Example
+
     class Person
       iclude CodeBox::CodeAttribute
 
