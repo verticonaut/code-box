@@ -24,18 +24,18 @@ There are cases you want to store 'named codes' instead artificial keys.
 Codes make sense for stable references and better readability of the raw data.
 
 There are several options to specify an attribute as a code:
-1. Attribute is a code. There is no associated object involved, but simple I18n translation of the code
-2. Attribute is a code. There exists a code object that is looked up on access.
-2. Attribute is a code. There exists an AR code object that is looked up through AR association.
+  1. Attribute is a code. There is no associated object involved, but simple I18n translation of the code
+  1. Attribute is a code. There exists a code object that is looked up on access.
+  1. Attribute is a code. There exists an AR code object that is looked up through AR association.
 
 #### Lookup through I18n
 
 Example
-class Person
-  iclude CodeBox::CodeAttribute
+    class Person
+      iclude CodeBox::CodeAttribute
 
-  attr_accessor :nationality_code
-end
+      attr_accessor :nationality_code
+    end
 
 The include will create the following methods in Person:
 
@@ -46,19 +46,19 @@ The include will create the following methods in Person:
 #### Lookup through code object
 
 Example
-class Person
-  iclude CodeBox::CodeAttribute
+    class Person
+      iclude CodeBox::CodeAttribute
 
-  attr_accessor :nationality_code, :lookup_type => :lookup
-end
+      attr_accessor :nationality_code, :lookup_type => :lookup
+    end
 
-class Code::Nationality
-  attr_accessor :code, :name
+    class Code::Nationality
+      attr_accessor :code, :name
 
-  def lookup(code)
-    return the correct Code::Nationality for the passed code
-  end
-end
+      def lookup(code)
+        return the correct Code::Nationality for the passed code
+      end
+    end
 
 The include will create the following methods in Person:
 
