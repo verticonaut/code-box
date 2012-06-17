@@ -88,7 +88,10 @@ The include and code specification will create the following methods in Person:
 
   `#nationality` Will return the nationality looked through AR association on the associated code object - implemented through below AR association:
 
-      `belongs_to :nationality, :class_name => 'Codes::Nationality', :foreign_key => :nationality_code, :primary_key => :code
+      belongs_to :nationality,
+        :class_name => 'Codes::Nationality',
+        :foreign_key => :nationality_code,
+        :primary_key => :code
 
 
 
