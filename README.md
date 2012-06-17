@@ -36,7 +36,9 @@ Example
     class Person
       iclude CodeBox::CodeAttribute
 
-      attr_accessor :nationality_code
+      attr_accessor  :nationality_code
+
+      code_attribute :nationality
     end
 
 The include will create the following method in Person:
