@@ -43,7 +43,7 @@ Example
 
 The include will create the following method in Person:
 
-  `#nationality` Will return the nationality looked up through I18n on key: `activerecord.values.person.nationality_code.de: Germany`, where de would 'de' the nationality code (Note: The 'activerecord' keyelement is named to accroding AR localization).
+  `#nationality` Will return the nationality looked up through I18n on key: `activerecord.values.person.nationality_code.de: Germany`, where de would 'de' the nationality code (Note: The 'activerecord' keyelement is named to according AR localization pattern).
 
 
 
