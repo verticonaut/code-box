@@ -40,7 +40,7 @@ Example
 
 The include will create the following method in Person:
 
-  `#nationality` Will return the nationality looked up through I18n on key: 'activerecord.values.person.nationality_code.de: Germany', where de would 'de' the nationality code (Note: The 'activerecord' keyelement is named to accroding AR localization).
+  `#nationality` Will return the nationality looked up through I18n on key: `activerecord.values.person.nationality_code.de: Germany`, where de would 'de' the nationality code (Note: The 'activerecord' keyelement is named to accroding AR localization).
 
 
 
@@ -77,7 +77,7 @@ The code value is interpreted as a foreign key on an associated AR Code object.
     class Person < ActiveRecord::Base
       iclude CodeBox::CodeAttribute
 
-      attr_accessor :nationality_code, :lookup_type => :activerecord
+      code_attribute :nationality, :lookup_type => :activerecord
     end
 
     class Code::Nationality < ActiveRecord::Base
