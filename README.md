@@ -1,6 +1,7 @@
-# Code::Attr
+# CodeBox::CodeAttribute
 
-TODO: Write a gem description
+Lets you define attributes as codes, instead keys (ids). For simple option storage saving a string code is often more simple an conveniant the storing an artificial id-key referencing a special code object.
+CodeBox lets you access define codes as strings and access the associated code objects in various ways.
 
 ## Installation
 
@@ -86,10 +87,10 @@ The code value is interpreted as a foreign key on an associated AR Code object.
 
 The include and code specification will create the following methods in Person:
 
-  `#nationality` Will return the nationality looked through AR association on the associated code object - implemented through below AR association:
+  `#nationality` - will return the nationality looked up through AR association on the associated code object - implemented through below AR association:
 
       belongs_to :nationality,
-        :class_name => 'Codes::Nationality',
+        :class_name  => 'Codes::Nationality',
         :foreign_key => :nationality_code,
         :primary_key => :code
 
