@@ -59,7 +59,7 @@ module CodeBox
                 all.inject({}) {|hash, obj| hash[obj.#{code_attr}] = obj; hash }
               end
 
-              def self.lookup(code)
+              def self.for_code(code)
                 code_cache[code]
               end
 
@@ -92,7 +92,7 @@ module CodeBox
                 all.inject({}) {|hash, obj| hash[obj.#{code_attr}] = obj; hash }
               end
 
-              def self.lookup(code)
+              def self.for_code(code)
                 code_cache[code]
               end
 

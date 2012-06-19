@@ -49,7 +49,7 @@ module Codes
       @@code_cache[code_obj.code_id] = code_obj
     end
 
-    def self.lookup(code)
+    def self.for_code(code)
       @@code_cache[code]
     end
   end
@@ -62,6 +62,15 @@ module Codes
   class ArCode < ActiveRecord::Base
     include CodeBox::ActsAsCode[:model_type => :active_record]
     self.table_name = :codes_ar_code
+  end
+
+  class SegmentModel
+    include CodeBox::CodeAttribute[:i18n_model_segment => :model]
+
+    attr_accessor :gender_code
+
+    # i18n codes
+    code_attribute :gender
   end
 
 end

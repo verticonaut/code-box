@@ -10,3 +10,9 @@ de:
         country_iso:
           de: Deutschland
           ch: Schweiz
+  model:
+    codes/segment_model:
+      values:
+        gender_code:
+          f: weiblich
+          m: männlich

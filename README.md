@@ -17,6 +17,7 @@ Or install it yourself as:
 
     $ gem install code-box
 
+
 ## Usage
 
 ### Specifying attributes as codes
@@ -25,9 +26,9 @@ There are cases you want to store 'named codes' instead artificial keys.
 Codes make sense for stable references and better readability of the raw data.
 
 There are several options to specify an attribute as a code:
-  1. The code value is used for I18n translation (e.g. nationality_code: 'GER' -> nationality: 'Germany' (when locale is 'en')).
-  1. The code value is used to lookup a specific code object (code objects are not persisten - at least not AR persisted).
-  1. The code value is a foreign key on a specific AR code object (code objects are persisted).
+  1. The code value is used for I18n translation (e.g. nationality_code: 'SUI' -> nationality: 'Switzerland' (when locale is 'en')).
+  1. The code value is used to lookup a specific code object that implements `.for_code`.
+  1. The code value is a foreign key on a specific ActiveRecord code object.
 
 #### Lookup through I18n
 
@@ -43,7 +44,7 @@ Example
 
 The include will create the following method in Person:
 
-  `#nationality` Will return the nationality looked up through I18n on key: `activerecord.values.person.nationality_code.de: Germany`, where de would 'de' the nationality code (Note: The 'activerecord' keyelement is named to accroding AR localization).
+  `#nationality` Will return the nationality text for the value stored in `nationality_code`. For the code 'SUI' the I18n key would look like: `model.values.person.nationality_code.SUI` (Note: The key is build like the stndard I18n keys for activerecord classes or attribute - except for the name element 'model' instead 'activerecord').
 
 
 
@@ -62,14 +63,16 @@ Example
     class Code::Nationality
       attr_accessor :code, :name
 
-      def self.lookup(code)
-        return the correct Code::Nationality for the passed code
+      def self.for_code(code)
+        # return the correct Code::Nationality for the passed code
       end
     end
 
+
 The include will create the following method in Person:
 
-  `#nationality` Will return the nationality looked through lookup on the associated code object.
+  `#nationality` Will return the nationality object looked up using the method '.for_code' on the code class.
+  Translation then can be done within this class with the first method described above.
 
 
 
