@@ -39,7 +39,7 @@ There are several options to specify an attribute as a code:
 Example
 
     class Person
-      iclude CodeBox::CodeAttribute
+      include CodeBox::CodeAttribute
 
       attr_accessor  :nationality_code
 
