@@ -56,7 +56,7 @@ The include will create the following method in Person:
 Example
 
     class Person
-      iclude CodeBox::CodeAttribute
+      include CodeBox::CodeAttribute
 
       attr_accessor :nationality_code
 
@@ -84,7 +84,7 @@ The include will create the following method in Person:
 The code value is interpreted as a foreign key on an associated AR Code object.
 
     class Person < ActiveRecord::Base
-      iclude CodeBox::CodeAttribute
+      include CodeBox::CodeAttribute
 
       code_attribute :nationality, :lookup_type => :activerecord
     end
