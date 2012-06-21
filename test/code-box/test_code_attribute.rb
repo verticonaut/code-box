@@ -7,7 +7,7 @@ class TestCodeAttribute < Test::Unit::TestCase
   def setup
   end
 
-  # :type => :i18n -------------------------------------------------------------------
+  # :type => :i18n -----------------------------------------------------------------
   def test_code_attribute_i18n_lookup
     obj = Codes::SampleClass.new(gender_code: 'f', country_iso: 'de')
     I18n.locale =:en
