@@ -7,7 +7,7 @@ class TestCodeAttribute < Test::Unit::TestCase
   def setup
   end
 
-  # :type => :i18n -------------------------------------------------------------------
+  # :type => :i18n -----------------------------------------------------------------
   def test_code_attribute_i18n_lookup
     obj = Codes::SampleClass.new(gender_code: 'f', country_iso: 'de')
     I18n.locale =:en
@@ -23,7 +23,15 @@ class TestCodeAttribute < Test::Unit::TestCase
 
     assert_equal('de',          obj.country_iso)
     assert_equal('Deutschland', obj.country(:de))
+  end
 
+  def test_code_attribute_i18n_lookup_w_segment
+    obj = Codes::SegmentModel.new
+    obj.gender_code = 'f'
+    I18n.locale =:en
+
+    assert_equal('f',      obj.gender_code)
+    assert_equal('female', obj.gender)
   end
 
   def test_code_attribute_i18n_translator_with_single_code
@@ -31,7 +39,7 @@ class TestCodeAttribute < Test::Unit::TestCase
     translation = Codes::SampleClass.translate_gender_code('f')
     assert_equal('weiblich', translation)
 
-    translation = Codes::SampleClass.translate_gender_code('f', :en)
+    translation = Codes::SampleClass.translate_gender_code('f', :locale => :en)
     assert_equal('female', translation)
   end
 
@@ -43,18 +51,33 @@ class TestCodeAttribute < Test::Unit::TestCase
     assert_equal('weiblich', translation.first)
     assert_equal('männlich', translation.last)
 
-    translation = Codes::SampleClass.translate_gender_code(['f', 'm'], :en)
+    translation = Codes::SampleClass.translate_gender_code(['f', 'm'], :locale => :en)
 
     assert translation.kind_of? Array
     assert_equal('female', translation.first)
     assert_equal('male', translation.last)
   end
 
+  def test_code_attribute_i18n_translator_with_multiple_codes_zipped
+    I18n.locale = :de
+    translation = Codes::SampleClass.translate_gender_code(['f', 'm'], :build => :zip)
+
+    assert translation.kind_of? Array
+    assert_equal(['weiblich', 'f'], translation.first)
+    assert_equal(['männlich', 'm'], translation.last)
+
+    translation = Codes::SampleClass.translate_gender_code(['f', 'm'], :locale => :en, :build => :zip)
+
+    assert translation.kind_of? Array
+    assert_equal(['female', 'f'], translation.first)
+    assert_equal(['male', 'm'],   translation.last)
+  end
+
 
   # :type => :lookup -------------------------------------------------------------------
   def test_code_attribute_lookup_default
-    code_single  = Codes::CivilStatus.lookup('single')
-    code_married = Codes::CivilStatus.lookup('married')
+    code_single  = Codes::CivilStatus.for_code('single')
+    code_married = Codes::CivilStatus.for_code('married')
 
     code_client  = Codes::SampleClass.new(:civil_status_code => 'single')
 

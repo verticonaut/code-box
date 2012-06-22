@@ -12,8 +12,8 @@ class TestActsAsCode < Test::Unit::TestCase
   def test_constants
     assert_equal 2, Codes::CivilStatus::all.size
 
-    assert_equal Codes::CivilStatus.lookup('single'),  Codes::CivilStatus::all.first
-    assert_equal Codes::CivilStatus.lookup('married'), Codes::CivilStatus::all.last
+    assert_equal Codes::CivilStatus.for_code('single'),  Codes::CivilStatus::all.first
+    assert_equal Codes::CivilStatus.for_code('married'), Codes::CivilStatus::all.last
   end
 
 
@@ -29,7 +29,7 @@ class TestActsAsCode < Test::Unit::TestCase
     code_1 = Codes::ArCode.create(:code => 'code_1', :name => "Code_1_name")
     code_2 = Codes::ArCode.create(:code => 'code_2', :name => "Code_2_name")
 
-    assert_equal code_2, Codes::ArCode.lookup('code_2')
+    assert_equal code_2, Codes::ArCode.for_code('code_2')
   end
 
 

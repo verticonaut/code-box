@@ -3,9 +3,49 @@
 module CodeBox
 
   module CodeAttribute
+    Config = { :i18n_model_segment => :activerecord }
+
+    def i18n_model_segment=(segment)
+      Config[:i18n_model_segment] = segment
+    end
+    def i18n_model_segment
+      Config[:i18n_model_segment]
+    end
+    module_function :i18n_model_segment=, :i18n_model_segment
+
+
+    def self.[](*options)
+      instance_eval <<-RUBY_
+        class << self
+          def _code_box_i18n_model_segment
+            "#{options.extract_options![:i18n_model_segment]}"
+          end
+        end
+      RUBY_
+      self
+    end
 
     def self.included(base)
+      unless (class << self; self; end).method_defined?(:_code_box_i18n_model_segment)
+        instance_eval <<-RUBY_
+          class << self
+            def _code_box_i18n_model_segment
+              nil
+            end
+          end
+        RUBY_
+      end
+
       base.extend(ClassMethods)
+
+      instance_eval <<-RUBY_
+        class << base
+          def _code_box_i18n_model_segment
+            return CodeBox::CodeAttribute.i18n_model_segment if "#{self._code_box_i18n_model_segment}".empty?
+            "#{self._code_box_i18n_model_segment}"
+          end
+        end
+      RUBY_
     end
 
 
@@ -34,7 +74,7 @@ module CodeBox
               class_eval <<-RUBY_
                 # getter
                 def #{code_name}
-                  #{code_class_name}.lookup(#{code_attr_name})
+                  #{code_class_name}.for_code(#{code_attr_name})
                 end
 
                 # setter
@@ -57,7 +97,7 @@ module CodeBox
                 # getter
                 def #{code_name}(locale=I18n.locale)
                   code = self.#{code_attr_name}
-                  self.class.translate_#{code_attr_name}(code, locale)
+                  self.class.translate_#{code_attr_name}(code, :locale => locale)
                 end
 
                 # setter
@@ -67,13 +107,23 @@ module CodeBox
 
                 # translator
                 class << self
-                  def translate_#{code_attr_name}(code, locale=I18n.locale)
-                    codes = Array(code)
-                    tranlsated_codes = codes.map { |code|
+                  def translate_#{code_attr_name}(*code)
+                    options           = code.extract_options!
+                    locale            = options[:locale] || I18n.locale
+                    codes             = code.first
+                    is_paramter_array = codes.kind_of? Array
+
+                    codes = Array(codes)
+                    translated_codes = codes.map { |code|
                       code_key = code.nil? ? :null_value : code
-                      I18n.t("activerecord.\#{self.name.underscore}.values.#{code_attr_name}.\#{code_key}", :locale => locale)
+                      I18n.t("\#{self._code_box_i18n_model_segment}.\#{self.name.underscore}.values.#{code_attr_name}.\#{code_key}", :locale => locale)
                     }
-                    tranlsated_codes.size == 1 ? tranlsated_codes.first : tranlsated_codes
+
+                    if options[:build] == :zip
+                      translated_codes.zip(codes)
+                    else
+                      is_paramter_array ? translated_codes : translated_codes.first
+                    end
                   end
                 end
               RUBY_
