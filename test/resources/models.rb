@@ -60,8 +60,8 @@ module Codes
 
 
   class ArCode < ActiveRecord::Base
-    include CodeBox::ActsAsCode[:model_type => :active_record]
     self.table_name = :codes_ar_code
+    include CodeBox::ActsAsCode[:type => :active_record]
   end
 
   class SegmentModel

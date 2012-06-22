@@ -1,18 +1,7 @@
 # encoding: utf-8
 
 module CodeBox
-
   module CodeAttribute
-    Config = { :i18n_model_segment => :activerecord }
-
-    def i18n_model_segment=(segment)
-      Config[:i18n_model_segment] = segment
-    end
-    def i18n_model_segment
-      Config[:i18n_model_segment]
-    end
-    module_function :i18n_model_segment=, :i18n_model_segment
-
 
     def self.[](*options)
       instance_eval <<-RUBY_
@@ -41,7 +30,7 @@ module CodeBox
       instance_eval <<-RUBY_
         class << base
           def _code_box_i18n_model_segment
-            return CodeBox::CodeAttribute.i18n_model_segment if "#{self._code_box_i18n_model_segment}".empty?
+            return CodeBox.i18n_model_segment if "#{self._code_box_i18n_model_segment}".empty?
             "#{self._code_box_i18n_model_segment}"
           end
         end
@@ -69,7 +58,6 @@ module CodeBox
           code_class_name = opts_copy.delete(:class_name) || "::Codes::#{code_name.to_s.camelize}"
 
           case lookup_type
-
             when :lookup
               class_eval <<-RUBY_
                 # getter
@@ -116,7 +104,7 @@ module CodeBox
                     codes = Array(codes)
                     translated_codes = codes.map { |code|
                       code_key = code.nil? ? :null_value : code
-                      I18n.t("\#{self._code_box_i18n_model_segment}.\#{self.name.underscore}.values.#{code_attr_name}.\#{code_key}", :locale => locale)
+                      I18n.t("\#{self._code_box_i18n_model_segment}.values.\#{self.name.underscore}.#{code_attr_name}.\#{code_key}", :locale => locale)
                     }
 
                     if options[:build] == :zip

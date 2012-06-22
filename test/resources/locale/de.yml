@@ -2,17 +2,20 @@
 ---
 de:
   activerecord:
-    codes/sample_class:
-      values:
+    values:
+      codes/sample_class:
         gender_code:
           f: weiblich
           m: männlich
         country_iso:
           de: Deutschland
           ch: Schweiz
+      codes/civil_status:
+        code:
+          married: verheiratet
   model:
-    codes/segment_model:
-      values:
+    values:
+      codes/segment_model:
         gender_code:
           f: weiblich
           m: männlich
