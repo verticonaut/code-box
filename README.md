@@ -46,9 +46,13 @@ Example
       code_attribute :nationality
     end
 
-The include will create the following method in Person:
+The include will create the following methods in Person:
 
   `#nationality` Will return the nationality text for the value stored in `nationality_code`. For the code 'SUI' the I18n key would look like: `activerecord.values.person.nationality_code.SUI` (Note: The key is build like the standard I18n keys for activerecord classes or attribute by default. Since I dislike the `activerecord` naming and prefer `model` I made this configurable - see below).
+
+  `.translate_nationality_code` Translates a code or an array of codes returning the translated code
+  or an array of translated codes. If passing the option `:build => :zip` the method returns an array
+  of arrays with translation and code which can be used to build html options.
 
 
 #### Lookup through code object
