@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    code-box (0.3.0)
+    code-box (0.3.1)
       activerecord (~> 3.0)
 
 GEM
