@@ -120,25 +120,25 @@ As describe above code_attributes can reference code objects if the `code_attrib
 
 Making an code object `acts_as_code` provides the following features:
 
-  * &#42;translated_code(locale=I18n.locale, *other_locale_options)
+  * `&#35;translated_code(locale=I18n.locale, *other_locale_options)
     Translates the code stored in `code`
 
-  * #translated_code(locale=I18n.locale, *other_locale_options)
+  * `&#35;translated_code(locale=I18n.locale, *other_locale_options)`
     Translates the code stored in `code`
 
-  * .translate_code(code, *options)
+  * `.translate_code(code, *options)`
     Translates a single code if `code` is a code, an array of codes of `code` is an array.
-    If code is an array the option :build => :zip can be used to build a select option capable array (e.g [['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']])
+    If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
-  * .for_code(code)
+  * `.for_code(code)
     Answers the code object for the given code (fetched from cache)
 
-  * .clear_code_cache
+  * `.clear_code_cache`
     Clears the cache so its build up on need from all codes from scratch
 
 
-  Note: The code name can be configures using the :code_attribute option.
-  :code_attribute => :iso_code leads to methods like #translate_iso_code etc.
+  __Note:__ The code name can be configures using the `:code_attribute` option.
+  `:code_attribute => :iso_code` leads to methods like #translate_iso_code etc.
 
 
 #### Plain old ruby object codes (:poro)
@@ -168,14 +168,15 @@ Assuming we have a simple ruby class with default code attribute 'code' we can d
     end
 
 Configuration options are:
-    :type                      => Here :poro(default) (other :active_record)
-    :code_attribute            => :code(default) or any other name as symbol
+
+    :type           => :poro #(default, other :active_record)
+    :code_attribute => :code #(default) or any other name as symbol
 
 
 
 #### ActiveRecod code objects (:active_record)
 
-Assuming we have an ActiveRecod code class with code_attribute 'code' we can defined such a class like
+Assuming we have an ActiveRecod code class with `code_attribute :code` we can defined such a class like
 
     class Codes::MySpecificCode < ActiveRecord::Base
       include CodeBox::ActsAsCode[:type => :active_record]
@@ -190,11 +191,12 @@ Assuming we have an ActiveRecod code class with code_attribute 'code' we can def
     end
 
 Configuration options are:
-    :type                      => here :active_record (other :poro(default))
-    :code_attribute            => :code(default) or any other name as symbol
-    :polymorphic               => false(default). If `true` the uniqueness validation is scope by the attribute `type`
-    :uniqueness_case_sensitive => true(default). If `false` the the uniqueness validation is case insensitive
-    :position_attr             => :position. If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
+
+    :type                      => :active_record # other :poro(default)
+    :code_attribute            => :code          # (default) or any other name as symbol
+    :polymorphic               => false          # (default). If `true` the uniqueness validation is scope by the attribute `type`
+    :uniqueness_case_sensitive => true           # (default). If `false` the the uniqueness validation is case insensitive
+    :position_attr             => :position      # If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
 
 
 
