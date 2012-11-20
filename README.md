@@ -7,7 +7,7 @@ CodeBox:
 * lets you define code attributes
 * provides translation of this codes __or__
 * provides access to associated code objects (see below) in various ways
-* __and__ furthermore enables an easy way to define code object
+* __and__ furthermore enables an easy way to define code objects
 
 
 
@@ -126,21 +126,21 @@ As describe above code_attributes can reference code objects if the `code_attrib
 
 Making an code object `acts_as_code` provides the following features:
 
-  * `#translated_code(locale=I18n.locale, *other_locale_options)
-    Translates the code stored in `code`
+  * `#translated_code(locale=I18n.locale, *other_locale_options)`
+    <br/>Translates the code stored in `code`
 
   * `#translated_code(locale=I18n.locale, *other_locale_options)`
-    Translates the code stored in `code`
+    <br/>Translates the code stored in `code`
 
   * `.translate_code(code, *options)`
-    Translates a single code if `code` is a code, an array of codes of `code` is an array.
+    <br/>Translates a single code if `code` is a code, an array of codes of `code` is an array.
     If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
-  * `.for_code(code)
-    Answers the code object for the given code (fetched from cache)
+  * `.for_code(code)`:
+    <br/>Answers the code object for the given code (fetched from cache)
 
   * `.clear_code_cache`
-    Clears the cache so its build up on need from all codes from scratch
+    <br/>Clears the cache so its build up on need from all codes from scratch
 
 
   __Note:__ The code name can be configures using the `:code_attribute` option.
@@ -149,7 +149,7 @@ Making an code object `acts_as_code` provides the following features:
 
 #### Plain old ruby object codes (:poro)
 
-Assuming we have a simple ruby class with default code attribute 'code' we can defined such a class like
+Assuming we have a simple ruby class with default code attribute 'code' we can defined such a class like:
 
     class Codes::MySpecificCode
       include CodeBox::ActsAsCode[]
@@ -157,7 +157,7 @@ Assuming we have a simple ruby class with default code attribute 'code' we can d
       #   include CodeBox::ActsAsCode
       #   acts_as_code
 
-      # Above include cretes the following:
+      # Above include creates the following:
       #
       # attr_accessor :code
       #
@@ -193,7 +193,7 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
       #   include CodeBox::ActsAsCode
       #   acts_as_code(:type => :active_record)
 
-      # Above include cretes the following:
+      # Above include creates the following:
       #
       # validates_presence_of   :code
       # validates_uniqueness_of :code
