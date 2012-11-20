@@ -144,7 +144,7 @@ Making an code object `acts_as_code` provides the following features:
 
 
   __Note:__ The code name can be configures using the `:code_attribute` option.
-  `:code_attribute => :iso_code` leads to methods like #translate_iso_code` etc.
+  `:code_attribute => :iso_code` leads to methods like `#translate_iso_code` etc.
 
 
 #### Plain old ruby object codes (:poro)
