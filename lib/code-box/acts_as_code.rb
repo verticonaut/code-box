@@ -69,28 +69,29 @@ module CodeBox
         end
 
         class_eval <<-RUBY_
-          def translated_#{code_attr}(locale=I18n.locale)
-            self.class.translate_#{code_attr}(code, :locale => locale)
+          def translated_#{code_attr}(locale = I18n.locale, *options)
+            locale_options = options.extract_options!
+            locale_options.merge!({:locale => locale})
+            self.class.translate_#{code_attr}(#{code_attr}, locale_options.merge({:locale => locale}))
           end
 
           # translator
           class << self
             def translate_#{code_attr}(*code)
-              options           = code.extract_options!
-              locale            = options[:locale] || I18n.locale
-              codes             = code.first
-              is_paramter_array = codes.kind_of? Array
+              options            = code.extract_options!
+              codes              = code.first
+              is_parameter_array = codes.kind_of? Array
 
               codes = Array(codes)
               translated_codes = codes.map { |code|
                 code_key = code.nil? ? :null_value : code
-                I18n.t("\#{self._code_box_i18n_model_segment}.values.\#{self.name.underscore}.#{code_attr}.\#{code_key}", :locale => locale)
+                I18n.t("\#{self._code_box_i18n_model_segment}.values.\#{self.name.underscore}.#{code_attr}.\#{code_key}", options)
               }
 
               if options[:build] == :zip
                 translated_codes.zip(codes)
               else
-                is_paramter_array ? translated_codes : translated_codes.first
+                is_parameter_array ? translated_codes : translated_codes.first
               end
             end
           end
@@ -102,12 +103,17 @@ module CodeBox
           def self.initialize_cache
             Hash[all.map{ |code| [code.#{code_attr}, code] }]
           end
+
         RUBY_
 
         instance_eval <<-CODE
           class << self
             def code_cache
               @code_cache ||= initialize_cache
+            end
+
+            def clear_code_cache
+              @code_cache = nil
             end
           end
         CODE
@@ -132,6 +138,12 @@ module CodeBox
             order_attr = position_attr ? position_attr.to_s : code_attr.to_s
 
             class_eval <<-CODE
+              attr_accessor :#{code_attr}
+
+              def self.initialize(#{code_attr})
+                self.#{code_attr} = #{code_attr}
+              end
+
               def hash
                 (self.class.name + '#' + #{code_attr}).hash
               end

@@ -9,8 +9,10 @@ module CodeBox
   def i18n_model_segment=(segment)
     Config[:i18n_model_segment] = segment
   end
+
   def i18n_model_segment
     Config[:i18n_model_segment]
   end
+
   module_function :i18n_model_segment=, :i18n_model_segment
 end
