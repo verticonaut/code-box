@@ -120,10 +120,10 @@ As describe above code_attributes can reference code objects if the `code_attrib
 
 Making an code object `acts_as_code` provides the following features:
 
-  * `&#35;translated_code(locale=I18n.locale, *other_locale_options)
+  * `#translated_code(locale=I18n.locale, *other_locale_options)
     Translates the code stored in `code`
 
-  * `&#35;translated_code(locale=I18n.locale, *other_locale_options)`
+  * `#translated_code(locale=I18n.locale, *other_locale_options)`
     Translates the code stored in `code`
 
   * `.translate_code(code, *options)`
@@ -138,7 +138,7 @@ Making an code object `acts_as_code` provides the following features:
 
 
   __Note:__ The code name can be configures using the `:code_attribute` option.
-  `:code_attribute => :iso_code` leads to methods like #translate_iso_code etc.
+  `:code_attribute => :iso_code` leads to methods like #translate_iso_code` etc.
 
 
 #### Plain old ruby object codes (:poro)
@@ -146,7 +146,10 @@ Making an code object `acts_as_code` provides the following features:
 Assuming we have a simple ruby class with default code attribute 'code' we can defined such a class like
 
     class Codes::MySpecificCode
-      include CodeBox::ActsAsCode
+      include CodeBox::ActsAsCode[]
+      # Above is actually a shortcut for:
+      #   include CodeBox::ActsAsCode
+      #   acts_as_code
 
       # Above include cretes the following:
       #
@@ -180,6 +183,9 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
 
     class Codes::MySpecificCode < ActiveRecord::Base
       include CodeBox::ActsAsCode[:type => :active_record]
+      # Above is actually a shortcut for:
+      #   include CodeBox::ActsAsCode
+      #   acts_as_code(:type => :active_record)
 
       # Above include cretes the following:
       #
