@@ -1,7 +1,13 @@
 # CodeBox::CodeAttribute
 
 Lets you define attributes as codes, instead keys (ids). For simple option storage saving a string code is often more simple an conveniant the storing an artificial id-key referencing a special code object.
-CodeBox lets you access define codes as strings and access the associated code objects in various ways.
+
+CodeBox:
+
+* lets you define code attributes
+* provides translation of this codes __or__
+* provides access to associated code objects (see below) in various ways
+* __and__ furthermore enables an easy way to define code object
 
 
 
