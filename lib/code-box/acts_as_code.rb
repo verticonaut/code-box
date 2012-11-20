@@ -140,7 +140,7 @@ module CodeBox
             class_eval <<-CODE
               attr_accessor :#{code_attr}
 
-              def self.initialize(#{code_attr})
+              def initialize(#{code_attr})
                 self.#{code_attr} = #{code_attr}
               end
 

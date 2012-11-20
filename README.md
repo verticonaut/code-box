@@ -67,6 +67,8 @@ Example
       code_attribute :nationality, :lookup_type => :lookup
     end
 
+    # Note: Below class is a plain sample implementation. Code objects can be easier build with
+    #       'acts_as_code' easier (see below)
     class Code::Nationality
       attr_accessor :code, :name
 
@@ -79,7 +81,7 @@ Example
 The include will create the following method in Person:
 
   `#nationality` Will return the nationality object looked up using the method '.for_code' on the code class.
-  Translation then can be done within this class with the first method described above.
+  Translation then can be done within this class with the first method described above ('acts_as_code' facilitates this as well).
 
 
 
@@ -90,9 +92,11 @@ The code value is interpreted as a foreign key on an associated AR Code object.
     class Person < ActiveRecord::Base
       include CodeBox::CodeAttribute
 
-      code_attribute :nationality, :lookup_type => :activerecord
+      code_attribute :nationality, :lookup_type => :associated
     end
 
+    # Note: Below class is a plain sample implementation. Code objects can be easier build with
+    #       'acts_as_code' easier (see below)
     class Code::Nationality < ActiveRecord::Base
       # has attribute 'code' of type string
     end
@@ -106,19 +110,96 @@ The include and code specification will create the following methods in Person:
         :foreign_key => :nationality_code,
         :primary_key => :code
 
-
-## Configuration details
-
-### Lookup through I18n
-... to be completed
-
-### Lookup through code object
-... to be completed
-
-### Lookup through associated AR Code Object
-... to be completed
+  Above options can be overwritten in the 'code_attribute' spec.
 
 
+
+### Defining code classes (acts_as_code)
+
+As describe above code_attributes can reference code objects if the `code_attribute` is of type :associated or :lookup.
+
+Making an code object `acts_as_code` provides the following features:
+
+  * #translated_code(locale=I18n.locale, *other_locale_options)
+    Translates the code stored in `code`
+
+  * #translated_code(locale=I18n.locale, *other_locale_options)
+    Translates the code stored in `code`
+
+  * .translate_code(code, *options)
+    Translates a single code if `code` is a code, an array of codes of `code` is an array.
+    If code is an array the option :build => :zip can be used to build a select option capable array (e.g [['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']])
+
+  * .for_code(code)
+    Answers the code object for the given code (fetched from cache)
+
+  * .clear_code_cache
+    Clears the cache so its build up on need from all codes from scratch
+
+
+  Note: The code name can be configures using the :code_attribute option.
+  :code_attribute => :iso_code leads to methods like #translate_iso_code etc.
+
+
+#### Plain old ruby object codes (:poro)
+
+Assuming we have a simple ruby class with default code attribute 'code' we can defined such a class like
+
+    class Codes::MySpecificCode
+      include CodeBox::ActsAsCode
+
+      # Above include cretes the following:
+      #
+      # attr_accessor :code
+      #
+      # def initialize(code)
+      #  @code = code
+      # end
+      #
+      # def self.all
+      #   raise "Sublass responsibility. You should implement '.all' returning all codes"
+      # end
+
+      # @return [Array] List if all code objects (instances of this)
+      def self.all
+        # you need to implement this
+      end
+
+    end
+
+Configuration options are:
+    :type                      => Here :poro(default) (other :active_record)
+    :code_attribute            => :code(default) or any other name as symbol
+
+
+
+#### ActiveRecod code objects (:active_record)
+
+Assuming we have an ActiveRecod code class with code_attribute 'code' we can defined such a class like
+
+    class Codes::MySpecificCode < ActiveRecord::Base
+      include CodeBox::ActsAsCode[:type => :active_record]
+
+      # Above include cretes the following:
+      #
+      # validates_presence_of   :code
+      # validates_uniqueness_of :code
+      #
+      # default_scope order('code')
+
+    end
+
+Configuration options are:
+    :type                      => here :active_record (other :poro(default))
+    :code_attribute            => :code(default) or any other name as symbol
+    :polymorphic               => false(default). If `true` the uniqueness validation is scope by the attribute `type`
+    :uniqueness_case_sensitive => true(default). If `false` the the uniqueness validation is case insensitive
+    :position_attr             => :position. If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
+
+
+
+### Examples
+  TO BE DONE…
 
 ## Contributing
 
