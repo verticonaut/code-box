@@ -67,8 +67,8 @@ Example
       code_attribute :nationality, :lookup_type => :lookup
     end
 
-    # Note: Below class is a plain sample implementation. Code objects can be easier build with
-    #       'acts_as_code' easier (see below)
+    # Note: Below class is a plain sample implementation. Code objects can be built easier with
+    #       'ActsAsCode' include (see below)
     class Code::Nationality
       attr_accessor :code, :name
 
@@ -95,8 +95,8 @@ The code value is interpreted as a foreign key on an associated AR Code object.
       code_attribute :nationality, :lookup_type => :associated
     end
 
-    # Note: Below class is a plain sample implementation. Code objects can be easier build with
-    #       'acts_as_code' easier (see below)
+    # Note: Below class is a plain sample implementation. Code objects can be built easier with
+    #       'ActsAsCode' include (see below)
     class Code::Nationality < ActiveRecord::Base
       # has attribute 'code' of type string
     end
@@ -110,17 +110,17 @@ The include and code specification will create the following methods in Person:
         :foreign_key => :nationality_code,
         :primary_key => :code
 
-  Above options can be overwritten in the 'code_attribute' spec.
+  Above options can be overwritten in the 'code_attribute' option.
 
 
 
 ### Defining code classes (acts_as_code)
 
-As describe above code_attributes can reference code objects if the `code_attribute` is of type :associated or :lookup.
+As describe above code_attributes can reference code objects if the `code_attribute` is of type `:associated` or `:lookup`.
 
 Making an code object `acts_as_code` provides the following features:
 
-  * #translated_code(locale=I18n.locale, *other_locale_options)
+  * &#42;translated_code(locale=I18n.locale, *other_locale_options)
     Translates the code stored in `code`
 
   * #translated_code(locale=I18n.locale, *other_locale_options)
