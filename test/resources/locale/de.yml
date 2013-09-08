@@ -13,9 +13,13 @@ de:
       codes/civil_status:
         code:
           married: verheiratet
+          single: ledig
   model:
     values:
       codes/segment_model:
         gender_code:
           f: weiblich
           m: männlich
+  shared:
+    options:
+      pls_select: '-- bitte waehlen --'

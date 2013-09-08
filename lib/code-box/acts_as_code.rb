@@ -91,6 +91,8 @@ module CodeBox
 
           # translator
           class << self
+            attr_accessor :code_box_i18n_options_select_key
+
             def translate_#{code_attr}(*code)
               options            = code.extract_options!
               codes              = code.first
@@ -112,6 +114,17 @@ module CodeBox
 
           def self.for_code(code)
             code_cache[code]
+          end
+
+          def self.build_options(*args)
+            options     = args.extract_options!
+            codes       = args.empty? ? All#{code_attr.pluralize.camelize} : args
+            include_nil = !!options[:include_nil]
+
+            options = translate_#{code_attr}(codes, build: :zip)
+            options << [I18n.t(CodeBox.i18n_empty_options_key), nil] if include_nil
+
+            options
           end
 
           def self.initialize_cache
@@ -237,7 +250,7 @@ module CodeBox
         end
 
         return if self.code_box_model_type == :active_record
-        
+
         code_constants = {}
         codes.each do |code|
           constant_name = "#{code.to_s.camelize}"

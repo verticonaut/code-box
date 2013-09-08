@@ -73,4 +73,13 @@ class TestActsAsCode < Test::Unit::TestCase
     assert_equal code.translated_code(:de), 'verheiratet'
   end
 
+  def test_options_building
+    options_array = Codes::CivilStatus.build_options
+    assert_equal options_array.size, 2
+
+    options_array = Codes::CivilStatus.build_options(include_nil: true)
+    puts arrrr: options_array
+    assert_equal options_array.size, 3
+  end
+
 end

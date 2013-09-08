@@ -13,9 +13,13 @@ en:
       codes/civil_status:
         code:
           married: married
+          single:  single
   model:
     values:
       codes/segment_model:
         gender_code:
           f: female
           m: male
+  shared:
+    options:
+      pls_select: '-- please select --'
