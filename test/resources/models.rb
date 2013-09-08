@@ -21,19 +21,12 @@ module Codes
 
   class CivilStatus
     include CodeBox::ActsAsCode['single', 'married', :type => :poro]
+  end
 
-    attr_accessor :code
+  class CivilStatusUseDefine
+    include CodeBox::ActsAsCode[:type => :poro]
 
-    def initialize(code)
-      @code = code
-    end
-
-    def self.all
-      [
-        Codes::CivilStatus.new('single'),
-        Codes::CivilStatus.new('married'),
-      ]
-    end
+    define_codes(:single, :married)
   end
 
   class AgerType

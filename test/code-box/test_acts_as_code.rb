@@ -4,12 +4,8 @@ require 'helper'
 
 class TestActsAsCode < Test::Unit::TestCase
 
-  def test_constants
-    assert_equal 'single', Codes::CivilStatus::CodeSingle
-  end
-
-  def test_constants
-    assert_equal 2, Codes::CivilStatus::all.size
+  def test_all_methods
+    assert_equal 2, Codes::CivilStatus.all.size
 
     assert_equal Codes::CivilStatus.for_code('single'),  Codes::CivilStatus::all.first
     assert_equal Codes::CivilStatus.for_code('married'), Codes::CivilStatus::all.last
@@ -32,12 +28,42 @@ class TestActsAsCode < Test::Unit::TestCase
     assert_equal code_2, Codes::ArCode.for_code('code_2')
   end
 
-  def test_constant_definition
+  def test_code_constant_definitiones
+    # Constants
     assert Codes::CivilStatus.const_defined?('CodeSingle')
     assert Codes::CivilStatus.const_defined?('CodeMarried')
+    assert Codes::CivilStatus.const_defined?('AllCodes')
 
+    # Constants-Values
+    assert_equal [Codes::CivilStatus::CodeSingle, Codes::CivilStatus::CodeMarried], Codes::CivilStatus::AllCodes
     assert_equal Codes::CivilStatus::CodeMarried, 'married'
     assert_equal Codes::CivilStatus::CodeSingle,  'single'
+  end
+
+  def test_code_instance_constant_definitions
+    # Constants
+    assert Codes::CivilStatus.const_defined?('Single')
+    assert Codes::CivilStatus.const_defined?('Married')
+    assert Codes::CivilStatus.const_defined?('All')
+
+    # Constants-Values
+    assert_equal [Codes::CivilStatus::Single, Codes::CivilStatus::Married], Codes::CivilStatus::All
+    assert_equal [Codes::CivilStatus::Single, Codes::CivilStatus::Married], Codes::CivilStatus.all
+    assert_equal Codes::CivilStatus::Single.code,  'single'
+    assert_equal Codes::CivilStatus::Married.code, 'married'
+  end
+
+  def test_code_instance_constant_definitions_w_define_code
+    # Constants
+    assert Codes::CivilStatusUseDefine.const_defined?('Single')
+    assert Codes::CivilStatusUseDefine.const_defined?('Married')
+    assert Codes::CivilStatusUseDefine.const_defined?('All')
+
+    # Constants-Values
+    assert_equal [Codes::CivilStatusUseDefine::Single, Codes::CivilStatusUseDefine::Married], Codes::CivilStatusUseDefine::All
+    assert_equal [Codes::CivilStatusUseDefine::Single, Codes::CivilStatusUseDefine::Married], Codes::CivilStatusUseDefine.all
+    assert_equal Codes::CivilStatusUseDefine::Single.code,  'single'
+    assert_equal Codes::CivilStatusUseDefine::Married.code, 'married'
   end
 
   def test_code_translation
