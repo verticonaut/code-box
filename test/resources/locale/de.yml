@@ -13,7 +13,7 @@ de:
       codes/civil_status:
         code:
           married: verheiratet
-          single: ledig
+          single:  ledig
   model:
     values:
       codes/segment_model:

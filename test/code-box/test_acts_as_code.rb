@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'helper'
+require 'pry'
 
 class TestActsAsCode < Test::Unit::TestCase
 
@@ -30,14 +31,15 @@ class TestActsAsCode < Test::Unit::TestCase
 
   def test_code_constant_definitiones
     # Constants
-    assert Codes::CivilStatus.const_defined?('CodeSingle')
-    assert Codes::CivilStatus.const_defined?('CodeMarried')
-    assert Codes::CivilStatus.const_defined?('AllCodes')
+    assert Codes::CivilStatus.const_defined?('Codes')
+    assert Codes::CivilStatus::Codes.const_defined?('Single')
+    assert Codes::CivilStatus::Codes.const_defined?('Married')
+    assert Codes::CivilStatus::Codes.const_defined?('All')
 
     # Constants-Values
-    assert_equal [Codes::CivilStatus::CodeSingle, Codes::CivilStatus::CodeMarried], Codes::CivilStatus::AllCodes
-    assert_equal Codes::CivilStatus::CodeMarried, 'married'
-    assert_equal Codes::CivilStatus::CodeSingle,  'single'
+    assert_equal [Codes::CivilStatus::Codes::Single, Codes::CivilStatus::Codes::Married], Codes::CivilStatus::Codes::All
+    assert_equal Codes::CivilStatus::Codes::Married, 'married'
+    assert_equal Codes::CivilStatus::Codes::Single,  'single'
   end
 
   def test_code_instance_constant_definitions
@@ -78,7 +80,6 @@ class TestActsAsCode < Test::Unit::TestCase
     assert_equal options_array.size, 2
 
     options_array = Codes::CivilStatus.build_options(include_nil: true)
-    puts arrrr: options_array
     assert_equal options_array.size, 3
   end
 

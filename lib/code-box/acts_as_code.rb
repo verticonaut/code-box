@@ -63,24 +63,6 @@ module CodeBox
         case_sensitive = opts[:uniqueness_case_sensitive]
         model_type     = opts.delete(:type)
 
-        # Create a constant for each code
-        if !codes.empty?
-          code_constants = {}
-          codes.each do |code|
-            constant_name = "#{(code_attr+'_'+code.to_s).to_s.camelize}"
-            constant      = const_set(constant_name, code.to_s) unless const_defined?(constant_name)
-            code_constants[constant_name] = constant
-          end
-          raise "Could not define all code constants. Only defined for #{code_constants.values.compact.inspect}" unless code_constants.values.compact.size == codes.size
-
-          pl_code_attr  = code_attr.pluralize.camelize
-          constant_name = "All#{pl_code_attr}"
-          if const_defined?(constant_name)
-            raise "Could not define constant '#{const_name}' for all codes."
-          else
-            const_set(constant_name, code_constants.values.compact)
-          end
-        end
 
         class_eval <<-RUBY_
           def translated_#{code_attr}(locale = I18n.locale, *options)
@@ -118,7 +100,7 @@ module CodeBox
 
           def self.build_options(*args)
             options     = args.extract_options!
-            codes       = args.empty? ? All#{code_attr.pluralize.camelize} : args
+            codes       = args.empty? ? #{code_attr.pluralize.camelize}::All : args
             include_nil = !!options[:include_nil]
 
             options = translate_#{code_attr}(codes, build: :zip)
@@ -134,12 +116,11 @@ module CodeBox
 
         instance_eval <<-CODE
           class << self
-            def code_box_model_type
-              '#{model_type.to_sym}'
-            end
-
-            def code_box_code_attr_name
-              '#{code_attr}'
+            def _code_box_options(key)
+              {
+                model_type:     '#{model_type.to_sym}',
+                code_attr_name: '#{code_attr.to_s}',
+              }[key]
             end
 
             def code_cache
@@ -178,6 +159,10 @@ module CodeBox
                 self.#{code_attr} = #{code_attr}
               end
 
+              def self.all
+                raise 'Class responsibility'
+              end
+
               def hash
                 (self.class.name + '#' + #{code_attr}).hash
               end
@@ -190,81 +175,56 @@ module CodeBox
                 self.equal? other
               end
             CODE
-
-            if codes.empty?
-              class_eval <<-CODE
-                def self.all
-                  raise 'Class responsibility'
-                end
-              CODE
-            else
-              code_constants = {}
-              codes.each do |code|
-                constant_name = "#{code.to_s.camelize}"
-                constant      = const_set(constant_name, self.new(code.to_s)) unless const_defined?(constant_name)
-                code_constants[constant_name] = constant
-              end
-              raise "Could not define all code instance constants. Only defined for #{code_constants.values.compact.inspect}" unless code_constants.values.compact.size == codes.size
-
-              pl_code_attr = code_attr.pluralize.camelize
-              constant_name   = 'All'
-              if const_defined?(constant_name)
-                raise "Could not define constant '#{const_name}' for all codes."
-              else
-                const_set(constant_name, code_constants.values.compact)
-              end
-
-              class_eval <<-CODE
-                def self.all
-                  All
-                end
-              CODE
-            end
-
           else
             raise ArgumentError, "'#{model_type}' is not a valid type. Use :active_record or :poro(default) instead"
         end
+
+        define_codes(*codes)
       end
 
       def define_codes(*codes)
-        code_attr      = self.code_box_code_attr_name
-        model_type     = self.code_box_model_type
-
         return if codes.empty?
 
+        # --- Define the code constants...
+
+        code_attr   = self._code_box_options(:code_attr_name)
+        model_type  = self._code_box_options(:model_type)
+
+        module_name  = code_attr.pluralize.camelize
+        codes_module = const_set(module_name, Module.new) 
+
         # Create a constant for each code
-        code_constants = {}
+        constants = {}
         codes.each do |code|
-          constant_name = "#{(code_attr+'_'+code.to_s).to_s.camelize}"
-          constant      = const_set(constant_name, code.to_s) unless const_defined?(constant_name)
-          code_constants[constant_name] = constant
+          constant_name            = code.to_s.camelize
+          constant                 = codes_module.const_set(constant_name, code.to_s) unless codes_module.const_defined?(constant_name)
+          constants[constant_name] = constant
         end
-        raise "Could not define all code constants. Only defined for #{code_constants.values.compact.inspect}" unless code_constants.values.compact.size == codes.size
+        raise "Could not define all code constants. Only defined for #{constants.values.compact.inspect}" unless constants.values.compact.size == codes.size
 
-        pl_code_attr  = code_attr.pluralize.camelize
-        constant_name = "All#{pl_code_attr}"
+        if const_defined?('All')
+          raise "Could not define constant 'All' for all codes."
+        else
+          codes_module.const_set('All', constants.values.compact)
+        end
+
+        return if model_type == :active_record
+
+        # --- Define the code instance constants...
+
+        constants = {}
+        codes.each do |code|
+          constant_name            = "#{code.to_s.camelize}"
+          constant                 = const_set(constant_name, self.new(code.to_s)) unless const_defined?(constant_name)
+          constants[constant_name] = constant
+        end
+        raise "Could not define all code instance constants. Only defined for #{constants.values.compact.inspect}" unless constants.values.compact.size == codes.size
+
+        constant_name = 'All'
         if const_defined?(constant_name)
           raise "Could not define constant '#{const_name}' for all codes."
         else
-          const_set(constant_name, code_constants.values.compact)
-        end
-
-        return if self.code_box_model_type == :active_record
-
-        code_constants = {}
-        codes.each do |code|
-          constant_name = "#{code.to_s.camelize}"
-          constant      = const_set(constant_name, self.new(code.to_s)) unless const_defined?(constant_name)
-          code_constants[constant_name] = constant
-        end
-        raise "Could not define all code instance constants. Only defined for #{code_constants.values.compact.inspect}" unless code_constants.values.compact.size == codes.size
-
-        pl_code_attr = code_attr.pluralize.camelize
-        constant_name   = 'All'
-        if const_defined?(constant_name)
-          raise "Could not define constant '#{const_name}' for all codes."
-        else
-          const_set(constant_name, code_constants.values.compact)
+          const_set(constant_name, constants.values.compact)
         end
 
         class_eval <<-CODE
