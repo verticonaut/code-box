@@ -122,25 +122,72 @@ The include and code specification will create the following methods in Person:
 
 ### Defining code classes (acts_as_code)
 
-As describe above code_attributes can reference code objects if the `code_attribute` is of type `:associated` or `:lookup`.
+Above described code_attributes can reference code objects. Code objects can be defined using 
 
-Making an code object `acts_as_code` provides the following features:
+    acts_as_code(*codes, options)
 
-  * `#translated_code(locale=I18n.locale, *other_locale_options)`
-    <br/>Translates the code stored in `code`
+Options are:
 
-  * `#translated_code(locale=I18n.locale, *other_locale_options)`
-    <br/>Translates the code stored in `code`
+  * `:code_attribute => :code`  
+     Name of the attribute holding the code (default 'code').
+  * `:sti => false` 
+    If `true` the uniqueness validation is scoped by the attribute `type` (default false).
+  * `:uniqueness_case_sensitive => true`  
+    If `true` the the uniqueness validation is case sensitive (default true).
+  * `:position_attr => :position  
+    If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
 
-  * `.translate_code(code, *options)`
+  All options except `:code_attribute` are used only for ActiveRecord models.
+
+If `*codes` are provided the following code constants will be defined when calling `acts_as_code('male', 'female', code_attribute: 'code')`  
+
+__IMPORTANT__ Code object constants will only be created when the code object is not an ActiveRecord model!
+
+    class Gender
+      include CodeBox::ActsAsCode['male', 'female'] # Code attribute name will be 'code'
+      # Above is a shortcut for...
+      # include CodeBox::ActsAsCode
+      # acts_as_code('male', 'female') # Code attribute name will be 'code'
+
+
+      # Given codes 'male' an 'female' the following constants will be defined:
+      #
+      # module Codes
+      #   Male   = 'male'
+      #   Female = 'female'
+      #   All    = [Male, Female]
+      # end
+      #
+      # Below constants pnly is is not ActiveRecod model!
+      # Male   = Gender.new('male')
+      # Female = Gender.new('female')
+      # All    = [Male, Female]
+      #
+    end
+
+
+Furthermote àcts_as_code` defines the following methods:
+
+  * `.for_code(code)`  
+    Answers the code object for the given code (fetched from cache)
+
+  * `#translated_code(locale=I18n.locale, *other_locale_options)`  
+    Translates the code stored in `code`
+
+  * `#translated_code(locale=I18n.locale, *other_locale_options)`  
+    Translates the code stored in `code`
+
+  * `.translate_code(codes_and_options)`
     <br/>Translates a single code if `code` is a code, an array of codes of `code` is an array.
     If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
-  * `.for_code(code)`:
-    <br/>Answers the code object for the given code (fetched from cache)
+  * `.build_select_options(codes_and_options)`  
+    Build an options array from the passed codes (all codes if no codes are passed). Add an empty option at the beginning if the option `:include_nil` is passed. The localization key is defined in CodeBox (CodeBox.i18n_empty_options_key). If you want the change the default key `shared.options.pls_select` you can do so in an initializer by calling `CodeBox.i18n_empty_options_key='your.key'`.
 
   * `.clear_code_cache`
     <br/>Clears the cache so its build up on need from all codes from scratch
+
+  * Passing 
 
 
   __Note:__ The code name can be configures using the `:code_attribute` option.

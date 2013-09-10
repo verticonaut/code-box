@@ -47,9 +47,8 @@ module CodeBox
 
     module ClassMethods
       DefaultOptions = {
-          :type                      => :poro,
           :code_attribute            => 'code',
-          :polymorphic               => false,
+          :sti                       => false,
           :uniqueness_case_sensitive => true,
           :position_attr             => :position,
       }
@@ -61,8 +60,8 @@ module CodeBox
         code_attr      = opts[:code_attribute].to_s
         position_attr  = opts[:position_attribute]
         case_sensitive = opts[:uniqueness_case_sensitive]
-        model_type     = opts.delete(:type)
 
+        model_type     = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
         class_eval <<-RUBY_
           def translated_#{code_attr}(locale = I18n.locale, *options)
@@ -75,9 +74,9 @@ module CodeBox
           class << self
             attr_accessor :code_box_i18n_options_select_key
 
-            def translate_#{code_attr}(*code)
-              options            = code.extract_options!
-              codes              = code.first
+            def translate_#{code_attr}(*codes_and_options)
+              options            = codes_and_options.extract_options!
+              codes              = codes_and_options.first
               is_parameter_array = codes.kind_of? Array
 
               codes = Array(codes)
@@ -98,13 +97,13 @@ module CodeBox
             code_cache[code]
           end
 
-          def self.build_options(*args)
+          def self.build_select_options(*args)
             options     = args.extract_options!
             codes       = args.empty? ? #{code_attr.pluralize.camelize}::All : args
             include_nil = !!options[:include_nil]
 
             options = translate_#{code_attr}(codes, build: :zip)
-            options << [I18n.t(CodeBox.i18n_empty_options_key), nil] if include_nil
+            options.unshift [I18n.t(CodeBox.i18n_empty_options_key), nil] if include_nil
 
             options
           end
@@ -116,11 +115,8 @@ module CodeBox
 
         instance_eval <<-CODE
           class << self
-            def _code_box_options(key)
-              {
-                model_type:     '#{model_type.to_sym}',
-                code_attr_name: '#{code_attr.to_s}',
-              }[key]
+            def _code_box_code_attr_name
+              '#{code_attr.to_s}'
             end
 
             def code_cache
@@ -144,7 +140,7 @@ module CodeBox
 
             class_eval <<-CODE
               validates_presence_of   :#{code_attr}
-              validates_uniqueness_of :#{code_attr}#{opts[:polymorphic] ? ', :scope => :type' : ' '}, :case_sensitive => #{case_sensitive}
+              validates_uniqueness_of :#{code_attr}#{opts[:sti] ? ', :scope => :type' : ' '}, :case_sensitive => #{case_sensitive}
 
               default_scope order('#{order_expression}')
             CODE
@@ -187,8 +183,8 @@ module CodeBox
 
         # --- Define the code constants...
 
-        code_attr   = self._code_box_options(:code_attr_name)
-        model_type  = self._code_box_options(:model_type)
+        code_attr   = self._code_box_code_attr_name
+        model_type  = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
         module_name  = code_attr.pluralize.camelize
         codes_module = const_set(module_name, Module.new) 

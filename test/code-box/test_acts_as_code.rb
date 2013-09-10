@@ -76,11 +76,12 @@ class TestActsAsCode < Test::Unit::TestCase
   end
 
   def test_options_building
-    options_array = Codes::CivilStatus.build_options
+    options_array = Codes::CivilStatus.build_select_options
     assert_equal options_array.size, 2
 
-    options_array = Codes::CivilStatus.build_options(include_nil: true)
+    options_array = Codes::CivilStatus.build_select_options(include_nil: true)
     assert_equal options_array.size, 3
+    puts options_array: options_array
   end
 
 end
