@@ -134,12 +134,12 @@ Options are:
     If `true` the uniqueness validation is scoped by the attribute `type` (default false).
   * `:uniqueness_case_sensitive => true`  
     If `true` the the uniqueness validation is case sensitive (default true).
-  * `:position_attr => :position  
+  * `:position_attr => :position`  
     If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
 
-  All options except `:code_attribute` are used only for ActiveRecord models.
+  All options except `:code_attribute` are used __only__ for ActiveRecord models.
 
-If `*codes` are provided the following code constants will be defined when calling `acts_as_code('male', 'female', code_attribute: 'code')`  
+If `*codes` are provided the following code constants will be defined as shown in the example below.  
 
 __IMPORTANT__ Code object constants will only be created when the code object is not an ActiveRecord model!
 
@@ -150,7 +150,7 @@ __IMPORTANT__ Code object constants will only be created when the code object is
       # acts_as_code('male', 'female') # Code attribute name will be 'code'
 
 
-      # Given codes 'male' an 'female' the following constants will be defined:
+      # Given codes 'male' and 'female' the following constants will be defined:
       #
       # module Codes
       #   Male   = 'male'
@@ -158,7 +158,7 @@ __IMPORTANT__ Code object constants will only be created when the code object is
       #   All    = [Male, Female]
       # end
       #
-      # Below constants pnly is is not ActiveRecod model!
+      # Below constants are only currently only defined if the hosting class not an ActiveRecod model (as in this sample).
       # Male   = Gender.new('male')
       # Female = Gender.new('female')
       # All    = [Male, Female]
@@ -166,7 +166,7 @@ __IMPORTANT__ Code object constants will only be created when the code object is
     end
 
 
-Furthermote àcts_as_code` defines the following methods:
+In addition `acts_as_code` defines the following methods:
 
   * `.for_code(code)`  
     Answers the code object for the given code (fetched from cache)
@@ -174,18 +174,15 @@ Furthermote àcts_as_code` defines the following methods:
   * `#translated_code(locale=I18n.locale, *other_locale_options)`  
     Translates the code stored in `code`
 
-  * `#translated_code(locale=I18n.locale, *other_locale_options)`  
-    Translates the code stored in `code`
-
-  * `.translate_code(codes_and_options)`
-    <br/>Translates a single code if `code` is a code, an array of codes of `code` is an array.
+  * `.translate_code(codes_and_options)`  
+    Translates a single code if `code` is a code, an array of codes of `code` is an array.
     If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
   * `.build_select_options(codes_and_options)`  
     Build an options array from the passed codes (all codes if no codes are passed). Add an empty option at the beginning if the option `:include_nil` is passed. The localization key is defined in CodeBox (CodeBox.i18n_empty_options_key). If you want the change the default key `shared.options.pls_select` you can do so in an initializer by calling `CodeBox.i18n_empty_options_key='your.key'`.
 
-  * `.clear_code_cache`
-    <br/>Clears the cache so its build up on need from all codes from scratch
+  * `.clear_code_cache`  
+    Clears the cache so its build up again lazy when needed form all codes.
 
   * Passing 
 
@@ -216,18 +213,12 @@ Assuming we have a simple ruby class with default code attribute 'code' we can d
       #   raise "Sublass responsibility. You should implement '.all' returning all codes"
       # end
 
-      # @return [Array] List if all code objects (instances of this)
+      # @return [Array] List if all code objects (instances of this) - is implemented when codes are defined.
       def self.all
-        # you need to implement this
+        raise 'Class responsibility - implement method .all returning all code models.'
       end
 
     end
-
-Configuration options are:
-
-    :type           => :poro #(default, other :active_record)
-    :code_attribute => :code #(default) or any other name as symbol
-
 
 
 #### ActiveRecod code objects (:active_record)
@@ -235,10 +226,10 @@ Configuration options are:
 Assuming we have an ActiveRecod code class with `code_attribute :code` we can defined such a class like
 
     class Codes::MySpecificCode < ActiveRecord::Base
-      include CodeBox::ActsAsCode[:type => :active_record]
+      include CodeBox::ActsAsCode[]
       # Above is actually a shortcut for:
       #   include CodeBox::ActsAsCode
-      #   acts_as_code(:type => :active_record)
+      #   acts_as_code
 
       # Above include creates the following:
       #
@@ -249,18 +240,22 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
 
     end
 
-Configuration options are:
-
-    :type                      => :active_record # other :poro(default)
-    :code_attribute            => :code          # (default) or any other name as symbol
-    :polymorphic               => false          # (default). If `true` the uniqueness validation is scope by the attribute `type`
-    :uniqueness_case_sensitive => true           # (default). If `false` the the uniqueness validation is case insensitive
-    :position_attr             => :position      # If present, the order when fetching the codes is done with this expression (default scope - means - if you want to omit the order used `unscoped` on any AR operation).
-
 
 
 ### Examples
   TO BE DONE…
+
+## Changelog
+
+### Version 0.5.0
+* Change constant definition. Create code constants in a Codes module so the can be included in other places - an document it.
+* Remove option `:model_type. The option is obsolte and can be derived from the including module.
+
+### Version 0.4.*
+* Define constant whens defining codes.
+
+### Version 0.3.*
+* Need to scan the logs…
 
 ## Contributing
 

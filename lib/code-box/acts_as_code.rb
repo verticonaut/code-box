@@ -156,7 +156,7 @@ module CodeBox
               end
 
               def self.all
-                raise 'Class responsibility'
+                raise 'Class responsibility - implement method .all returning all code models.'
               end
 
               def hash
