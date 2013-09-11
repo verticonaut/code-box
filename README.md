@@ -1,3 +1,8 @@
+# Notes
+
+If you re using ActiveRecord ~> 4.0.0 use the version ~> 0.6  
+If you re using ActiveRecord ~> 3.0 use the version ~> 0.5.0
+
 # CodeBox::CodeAttribute
 
 Lets you define attributes as codes, instead keys (ids). For simple option storage saving a string code is often more simple an conveniant the storing an artificial id-key referencing a special code object.
@@ -246,6 +251,9 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
   TO BE DONE…
 
 ## Changelog
+
+### Version 0.6.0
+* Moving to activerecord 4.0.
 
 ### Version 0.5.0
 * Change constant definition. Create code constants in a Codes module so the can be included in other places - an document it.
