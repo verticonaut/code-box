@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require File.expand_path('../lib/code-box/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name          = "code-box"
+  gem.name          = 'code-box'
   gem.version       = CodeBox::VERSION
 
   gem.authors       = ["Martin Schweizer"]
@@ -12,9 +12,9 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Specify attributes as code and provide lookup by I18n-, cache- or associated and support for building code classes.}
   gem.homepage      = %q{http://github.com/verticonaut/code-box}
 
-  gem.add_dependency              "activerecord", "~> 3.0"
+  gem.add_dependency              "activerecord", "~> 4.0"
 
-  gem.add_development_dependency  "activerecord", "~> 3.0"
+  gem.add_development_dependency  "activerecord", "~> 4.0"
   gem.add_development_dependency  "sqlite3"
   gem.add_development_dependency  "rake"
   gem.add_development_dependency  "pry"

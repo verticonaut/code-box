@@ -142,7 +142,7 @@ module CodeBox
               validates_presence_of   :#{code_attr}
               validates_uniqueness_of :#{code_attr}#{opts[:sti] ? ', :scope => :type' : ' '}, :case_sensitive => #{case_sensitive}
 
-              default_scope order('#{order_expression}')
+              default_scope -> { order('#{order_expression}') }
             CODE
 
           when :poro
