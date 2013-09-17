@@ -47,21 +47,23 @@ module CodeBox
 
     module ClassMethods
       DefaultOptions = {
-          :code_attribute            => 'code',
-          :sti                       => false,
-          :uniqueness_case_sensitive => true,
-          :position_attr             => :position,
+          code_attribute:            'code',
+          sti:                       false,
+          uniqueness_case_sensitive: true,
+          position_attr:             :position,
+          define_test_methods:       true,
       }
 
       def acts_as_code(*codes_and_or_options)
-        options        = codes_and_or_options.extract_options!
-        codes          = codes_and_or_options
-        opts           = DefaultOptions.merge(options)
-        code_attr      = opts[:code_attribute].to_s
-        position_attr  = opts[:position_attribute]
-        case_sensitive = opts[:uniqueness_case_sensitive]
+        options               = codes_and_or_options.extract_options!
+        codes                 = codes_and_or_options
+        opts                  = DefaultOptions.merge(options)
+        code_attr             = opts[:code_attribute].to_s
+        position_attr         = opts[:position_attribute]
+        case_sensitive        = opts[:uniqueness_case_sensitive]
+        define_test_methods   = opts[:define_test_methods]
 
-        model_type     = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
+        model_type = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
         class_eval <<-RUBY_
           def translated_#{code_attr}(locale = I18n.locale, *options)
@@ -98,12 +100,32 @@ module CodeBox
           end
 
           def self.build_select_options(*args)
-            options     = args.extract_options!
-            codes       = args.empty? ? #{code_attr.pluralize.camelize}::All : args
-            include_nil = !!options[:include_nil]
+            options       = args.extract_options!
+            codes         = args.empty? ? #{code_attr.pluralize.camelize}::All : args
+            include_empty = options[:include_empty] || false
+            locale        = options.fetch(:locale, I18n.locale)
 
+            label, value = case include_empty
+              when Hash
+                [
+                  include_empty.fetch(:label, "i18n.#{CodeBox.i18n_empty_options_key}"),
+                  include_empty.fetch(:value, nil)
+                ]
+              when TrueClass
+                [ "i18n.#{CodeBox.i18n_empty_options_key}", nil ]
+              when String
+                [ include_empty, nil ]
+              else # is something falsish
+                []
+            end
+
+
+            # If starts with 'i18n.' it is considered an I18n key, else the label itself
             options = translate_#{code_attr}(codes, build: :zip)
-            options.unshift [I18n.t(CodeBox.i18n_empty_options_key), nil] if include_nil
+            if include_empty
+              label = I18n.t(label[5..-1], locale: locale) if label.starts_with?('i18n.')
+              options.unshift [label, value]
+            end
 
             options
           end
@@ -175,14 +197,11 @@ module CodeBox
             raise ArgumentError, "'#{model_type}' is not a valid type. Use :active_record or :poro(default) instead"
         end
 
-        define_codes(*codes)
+        define_codes(*codes, define_test_methods) unless codes.empty?
       end
 
-      def define_codes(*codes)
-        return if codes.empty?
-
+      def define_codes(*codes, define_test_methods)
         # --- Define the code constants...
-
         code_attr   = self._code_box_code_attr_name
         model_type  = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
@@ -204,7 +223,26 @@ module CodeBox
           codes_module.const_set('All', constants.values.compact)
         end
 
+
+        # Define test methods for each code like e.g.
+        # def married?
+        #   code == Codes::Married
+        # end
+        if define_test_methods
+          method_prefix = CodeBox.test_method_prefix
+
+          codes.each do |code|
+            method_name = "#{method_prefix}#{code.to_s}"
+            class_eval <<-CODE
+              def #{method_name}?
+                #{code_attr} == #{module_name}::#{code.to_s.camelize}
+              end
+            CODE
+          end
+        end
+
         return if model_type == :active_record
+
 
         # --- Define the code instance constants...
 

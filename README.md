@@ -171,6 +171,34 @@ __IMPORTANT__ Code object constants will only be created when the code object is
     end
 
 
+If `*codes` are provided - in addition the following test_methods are defined:
+
+    class Gender
+      include CodeBox::ActsAsCode['male', 'female'] # Code attribute name will be 'code'
+      # Above is a shortcut for...
+      # include CodeBox::ActsAsCode
+      # acts_as_code('male', 'female') # Code attribute name will be 'code'
+
+
+      # Given codes 'male' and 'female' the following constants will be defined:
+      # ... al the stuff above
+      # 
+      # def male?
+      #   code == Codes::Male
+      # end
+      # 
+      # def female?
+      #   code == Codes::Female
+      # end
+      # 
+    end
+
+  Pass the option `define_test_methods: false` if you don't want to have test-methods generated.
+  If you prefer the all test-methods prefixed with e.g. `is_` so the methods above look like `is_male?` then you can configure this 
+  globaly by defining `CodeBox.test_method_prefix='is_'`. 
+
+
+
 In addition `acts_as_code` defines the following methods:
 
   * `.for_code(code)`  
@@ -184,7 +212,29 @@ In addition `acts_as_code` defines the following methods:
     If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
   * `.build_select_options(codes_and_options)`  
-    Build an options array from the passed codes (all codes if no codes are passed). Add an empty option at the beginning if the option `:include_nil` is passed. The localization key is defined in CodeBox (CodeBox.i18n_empty_options_key). If you want the change the default key `shared.options.pls_select` you can do so in an initializer by calling `CodeBox.i18n_empty_options_key='your.key'`.
+    Build an options array from the passed codes (all codes if no codes are passed). Add an empty option at the beginning if the option `:include_empty` is passed. If `:include_empty` is…
+
+    * `true`, then options label is derived from the I18n tranlsation of the key defined in CodeBox.i18n_empty_options_key (default is `shared.options.pls_select` - you can change this default). The value of the option is `nil` by default.
+    * `false` then no empty option is defined (default)
+    * a String then the string is used as label. The value of the option is `nil` by default.
+    * a String starting with `i18n.` the the string is considered as a tranlation key (without the `i18n.` part). Value is nil by default.
+    * is a Hash then the value is take from the Hashs value for key `:value` (nil if not present), and the label is taken from the value of key `:label` (default CodeBox.i18n_empty_option_key). If a String is present it is interpreted as a plain label or I18n key as described above.
+
+    ``Examples
+
+    .build_select_options(include_empty: true)
+
+    is same as …
+
+    .build_select_options(include_empty: {})    
+
+    is same as …
+
+    .build_select_options(include_empty: {label: nil, value: nil})    
+
+    is same as …
+
+    .build_select_options(include_empty: {label: '<your default key in CodeBox.i18n_empty_options_key>', value: nil})    
 
   * `.clear_code_cache`  
     Clears the cache so its build up again lazy when needed form all codes.
@@ -251,6 +301,11 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
   TO BE DONE…
 
 ## Changelog
+
+### Version 0.5.1
+* Adding testing methods for codes objects. E.g. Code-Object with code 'my_code' get method `#codeObjectInstance.my_code?` defined.
+* Method `.build_select_options` has been changed so you can pass in more flexible empty option configuration (see Readme).
+* Ugrade of Rails 4 Version pending…
 
 ### Version 0.6.0
 * Moving to activerecord 4.0.

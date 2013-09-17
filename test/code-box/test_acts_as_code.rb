@@ -57,15 +57,15 @@ class TestActsAsCode < Test::Unit::TestCase
 
   def test_code_instance_constant_definitions_w_define_code
     # Constants
-    assert Codes::CivilStatusUseDefine.const_defined?('Single')
-    assert Codes::CivilStatusUseDefine.const_defined?('Married')
-    assert Codes::CivilStatusUseDefine.const_defined?('All')
+    assert Codes::CivilStatus.const_defined?('Single')
+    assert Codes::CivilStatus.const_defined?('Married')
+    assert Codes::CivilStatus.const_defined?('All')
 
     # Constants-Values
-    assert_equal [Codes::CivilStatusUseDefine::Single, Codes::CivilStatusUseDefine::Married], Codes::CivilStatusUseDefine::All
-    assert_equal [Codes::CivilStatusUseDefine::Single, Codes::CivilStatusUseDefine::Married], Codes::CivilStatusUseDefine.all
-    assert_equal Codes::CivilStatusUseDefine::Single.code,  'single'
-    assert_equal Codes::CivilStatusUseDefine::Married.code, 'married'
+    assert_equal [Codes::CivilStatus::Single, Codes::CivilStatus::Married], Codes::CivilStatus::All
+    assert_equal [Codes::CivilStatus::Single, Codes::CivilStatus::Married], Codes::CivilStatus.all
+    assert_equal Codes::CivilStatus::Single.code,  'single'
+    assert_equal Codes::CivilStatus::Married.code, 'married'
   end
 
   def test_code_translation
@@ -79,9 +79,29 @@ class TestActsAsCode < Test::Unit::TestCase
     options_array = Codes::CivilStatus.build_select_options
     assert_equal options_array.size, 2
 
-    options_array = Codes::CivilStatus.build_select_options(include_nil: true)
+    options_array = Codes::CivilStatus.build_select_options(include_empty: true)
     assert_equal options_array.size, 3
-    puts options_array: options_array
+    assert_equal options_array.first[1], nil 
+  end
+
+  def test_options_building_with_text_label
+    options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'MyLabel' })
+    assert_equal options_array.size, 3
+    assert_equal options_array.first[0], 'MyLabel' 
+    assert_equal options_array.first[1], nil 
+  end
+
+  def test_options_building_with_custom_value
+    options_array = Codes::CivilStatus.build_select_options(include_empty: { value: 'all' })
+    assert_equal options_array.size, 3
+    assert_equal options_array.first[1], 'all' 
+  end
+
+  def test_options_building_with_custom_label_and_value
+    options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'Yaiii', value: 'all' })
+    assert_equal options_array.size, 3
+    assert_equal options_array.first[0], 'Yaiii' 
+    assert_equal options_array.first[1], 'all' 
   end
 
 end
