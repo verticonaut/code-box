@@ -3,8 +3,7 @@
 
 # Notes
 
-If you re using ActiveRecord ~> 4.0.0 use the version ~> 0.6  
-If you re using ActiveRecord ~> 3.0 use the version ~> 0.5.0
+Use version 1.0.0 in any case. Works for none activerecord codes, or activerecord codes 3.x and 4.x.
 
 # CodeBox::CodeAttribute
 
@@ -304,6 +303,11 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
   TO BE DONE…
 
 ## Changelog
+
+### Version 1.0.0
+* Whatever activerecord version you use - or not activerecord at all - simply use the gem version 1.0.0. There is 
+  no dependency on activerecord anymore. You can use activerecord codes as described. TravisCI tests show proper working on activerecord 3.x and 4.x.
+
 
 ### Version 0.5.1
 * Adding testing methods for codes objects. E.g. Code-Object with code 'my_code' get method `#codeObjectInstance.my_code?` defined.
