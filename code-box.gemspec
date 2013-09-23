@@ -12,12 +12,9 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Specify attributes as code and provide lookup by I18n-, cache- or associated and support for building code classes.}
   gem.homepage      = %q{http://github.com/verticonaut/code-box}
 
-  gem.add_dependency              "activerecord", "~> 3.0"
-
-  gem.add_development_dependency  "activerecord", "~> 3.0"
+  gem.add_development_dependency  "activerecord", "~> 4.0"
   gem.add_development_dependency  "sqlite3"
   gem.add_development_dependency  "rake"
-  gem.add_development_dependency  "pry"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'helper'
-require 'pry'
 
 class TestActsAsCode < Test::Unit::TestCase
 
