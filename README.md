@@ -1,3 +1,7 @@
+{<img src="https://badge.fury.io/rb/code-box.png" alt="Gem Version" />}[http://badge.fury.io/rb/code-box]
+{<img src="https://secure.travis-ci.org/verticonaut/code-box.png" />}[http://travis-ci.org/verticonaut/code-box]
+{<img src="https://codeclimate.com/github/verticonaut/code-box.png" />}[https://codeclimate.com/github/verticonaut/code-box]
+
 # Notes
 
 If you re using ActiveRecord ~> 4.0.0 use the version ~> 0.6  
