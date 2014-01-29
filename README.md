@@ -75,9 +75,12 @@ Example
     class Person
       include CodeBox::CodeAttribute
 
-      attr_accessor :nationality_code
+      attr_accessor :nationality_code, :nationalities_code
 
-      code_attribute :nationality, :lookup_type => :lookup
+      code_attribute :nationality,   :lookup_type => :lookup
+
+      code_attribute :nationalities, :lookup_type => :lookup, :enum => :set, :class_name => 'Codes::Country'
+      # Will store countries as comma separated list of country codes, e.g. 'SUI,GER,USA'
     end
 
     # Note: Below class is a plain sample implementation. Code objects can be built easier with
@@ -303,6 +306,9 @@ Assuming we have an ActiveRecod code class with `code_attribute :code` we can de
   TO BE DONE…
 
 ## Changelog
+
+### Version 1.1.0
+* Type lookup has now :enum functionality. Supported is the type :set right now
 
 ### Version 1.0.1
 * Fixed Constant creation. Checks for constants are limited to current scope.

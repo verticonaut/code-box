@@ -17,6 +17,8 @@ module Codes
     code_attribute :ager_type,    :lookup_type => :lookup, :foreign_code_attribute => 'code_id'
 
     code_attribute :country_2,    :lookup_type => :associated, :class_name => 'Codes::Country'
+
+    code_attribute :countries,    :lookup_type => :lookup, :class_name => 'Codes::Country', :enum => :set
   end
 
   class CivilStatus
@@ -49,6 +51,10 @@ module Codes
 
   class Country < ActiveRecord::Base
     self.table_name = :codes_country
+
+    def self.for_code(code)
+      where('code= ?', code).first
+    end
   end
 
 

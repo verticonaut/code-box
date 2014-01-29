@@ -11,6 +11,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string :ager_type_code
 
     t.string :country_2_code
+
+    t.string :countries_code
   end
 
   create_table :codes_country, :force => true do |t|

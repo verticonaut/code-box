@@ -107,4 +107,33 @@ class TestCodeAttribute < Test::Unit::TestCase
     assert_equal(code_ch, code_client.country_2)
   end
 
+  # :type => :lookup --------------------------------------------------------------------
+  def test_code_attribute_lookup_set_as_list_getter
+    Codes::Country.delete_all
+
+    code_ch  = Codes::Country.create(:code => 'CH', :name => 'Switzerland')
+    code_de  = Codes::Country.create(:code => 'DE', :name => 'Germany')
+
+    code_client  = Codes::SampleClass.new(:countries_code => 'CH,DE')
+
+    assert_equal('CH,DE', code_client.countries_code)
+    assert_equal([code_ch, code_de], code_client.countries)
+  end
+
+  def test_code_attribute_lookup_set_as_list_getter
+    Codes::Country.delete_all
+
+    code_ch  = Codes::Country.create(:code => 'CH', :name => 'Switzerland')
+    code_de  = Codes::Country.create(:code => 'DE', :name => 'Germany')
+
+    code_client           = Codes::SampleClass.new(:countries_code => 'IT')
+    countries             = [code_ch, code_de]
+    code_client.countries = countries
+    code_client.save
+
+    assert_equal('CH,DE',   code_client.countries_code)
+    assert_equal(countries, code_client.countries)
+    assert_equal('CH,DE',   code_client.countries.map(&:code).join(','))
+  end
+
 end
