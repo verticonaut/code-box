@@ -212,16 +212,11 @@ module CodeBox
         constants = {}
         codes.each do |code|
           constant_name            = code.to_s.camelize
-          constant                 = codes_module.const_set(constant_name, code.to_s) unless codes_module.const_defined?(constant_name, false)
+          constant                 = codes_module.const_set(constant_name, code.to_s)
           constants[constant_name] = constant
         end
-        raise "Could not define all code constants. Only defined for #{constants.values.compact.inspect}" unless constants.values.compact.size == codes.size
 
-        if const_defined?('All', false)
-          raise "Could not define constant 'All' for all codes."
-        else
-          codes_module.const_set('All', constants.values.compact)
-        end
+        codes_module.const_set('All', constants.values.compact)
 
 
         # Define test methods for each code like e.g.
@@ -249,17 +244,11 @@ module CodeBox
         constants = {}
         codes.each do |code|
           constant_name            = "#{code.to_s.camelize}"
-          constant                 = const_set(constant_name, self.new(code.to_s)) unless const_defined?(constant_name, false)
+          constant                 = const_set(constant_name, self.new(code.to_s))
           constants[constant_name] = constant
         end
-        raise "Could not define all code instance constants. Only defined for #{constants.values.compact.inspect}" unless constants.values.compact.size == codes.size
 
-        constant_name = 'All'
-        if const_defined?(constant_name, false)
-          raise "Could not define constant '#{const_name}' for all codes."
-        else
-          const_set(constant_name, constants.values.compact)
-        end
+        const_set('All', constants.values.compact)
 
         class_eval <<-CODE
           def self.all

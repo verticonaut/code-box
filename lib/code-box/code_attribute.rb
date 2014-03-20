@@ -74,10 +74,17 @@ module CodeBox
                     end
 
                     # setter
-                    def #{code_name}=(code)
-                      code_objs = Array(code)
+                    def #{code_name}=(code_obj)
+                      code_objs = Array(code_obj)
                       value     = code_objs.map{ |code_obj| code_obj.#{foreign_code_attr_name} }.join(',')
                       self.#{code_attr_name} = value
+                    end
+
+                    # getter raw
+                    # not getter raw - it's defined already
+
+                    def #{code_attr_names}=(codes)
+                      self.#{code_attr_name} = Array(codes).join(',')
                     end
                   RUBY_
                 when :binary
