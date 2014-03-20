@@ -83,7 +83,7 @@ module CodeBox
                     # getter raw
                     # not getter raw - it's defined already
 
-                    def #{code_attr_names}=(codes)
+                    def #{code_attr_name}_list=(codes)
                       self.#{code_attr_name} = Array(codes).join(',')
                     end
                   RUBY_
