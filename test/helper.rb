@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'test/unit'
 require 'minitest/autorun'
 require 'fileutils'
 require 'active_record'

@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestCodeAttribute < Test::Unit::TestCase
+class TestCodeAttribute <MiniTest::Unit::TestCase
 
   def setup
   end

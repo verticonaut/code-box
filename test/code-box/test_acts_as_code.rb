@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestActsAsCode < Test::Unit::TestCase
+class TestActsAsCode < MiniTest::Unit::TestCase
 
   def test_all_methods
     assert_equal 2, Codes::CivilStatus.all.size
