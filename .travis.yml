@@ -5,3 +5,4 @@ rvm:
 gemfile:
   - gemfiles/ar3_0.gemfile
   - gemfiles/ar4_0.gemfile
+  - gemfiles/ar4_1.gemfile
