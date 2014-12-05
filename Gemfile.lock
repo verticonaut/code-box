@@ -39,5 +39,6 @@ PLATFORMS
 DEPENDENCIES
   activerecord (~> 4.0)
   code-box!
+  minitest
   rake
   sqlite3

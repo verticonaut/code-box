@@ -182,11 +182,11 @@ module CodeBox
               end
 
               def hash
-                (self.class.name + '#' + #{code_attr}).hash
+                [self.class.name, #{code_attr}].hash
               end
 
-              def equal?(other)
-                other && is_a?(other.class) && #{code_attr} == other.#{code_attr}
+              def eql?(other)
+                other.is_a?(self.class) && self.hash == other.hash
               end
 
               def ==(other)
