@@ -4,48 +4,39 @@
 module CodeBox
 
   module ActsAsCode
-    @opts = {}
 
     def self.[](*options)
-      @opts = options.dup
-
-      instance_eval <<-RUBY_
-        class << self
-          def _code_box_i18n_model_segment
-            "#{options.extract_options![:i18n_model_segment]}"
-          end
-        end
-      RUBY_
+      @_code_box_acts_as_code_opts = options.dup
 
       self
     end
 
     def self.included(base)
-      unless (class << self; self; end).method_defined?(:_code_box_i18n_model_segment)
-        instance_eval <<-RUBY_
-          class << self
-            def _code_box_i18n_model_segment
-              nil
-            end
-          end
-        RUBY_
-      end
-
-      instance_eval <<-RUBY_
-        class << base
-          def _code_box_i18n_model_segment
-            return CodeBox.i18n_model_segment if "#{self._code_box_i18n_model_segment}".empty?
-            "#{self._code_box_i18n_model_segment}"
-          end
-        end
-      RUBY_
-
       base.extend(ClassMethods)
-      base.acts_as_code(*@opts) if @opts
+      base.acts_as_code(*@_code_box_acts_as_code_opts) if @_code_box_acts_as_code_opts
+
+
+      # i18n_segment = @opts._code_box_acts_as_code_opts.delete(:i18n_model_segment)
+
+      # instance_eval <<-RUBY_
+      #   class << self
+      #     def code_box_i18n_model_segment
+      #       #{i18n_segment.nil? ? CodeBox.i18n_model_segment : '#{i18n_segment}'}
+      #     end
+      #   end
+      # RUBY_
     end
 
-
     module ClassMethods
+      def act_as_code_NEW(*options)
+        _module = ::CodeBox::ActsAsCode::Utilities.build_code_box_module(self, options: options)
+
+        self.include _module
+        self.extend  _module::ClassMethods
+      end
+    end
+
+    module Utilities
       DefaultOptions = {
           code_attribute:            'code',
           sti:                       false,
@@ -53,6 +44,32 @@ module CodeBox
           position_attr:             :position,
           define_test_methods:       true,
       }
+
+      module_function
+
+      def build_code_box_module(base, options: options)
+        # create module constant…
+        mod_name = "CodeBoxActsAsCode"
+
+        begin
+          mod = base.const_get(mod_name)
+        rescue NameError
+          mod = Module.new
+          base.const_set(mod_name, mod)
+        end
+
+        # add module body…
+        add_module_body(mod, options)
+
+        mod
+      end
+
+      def add_module_body(mod, options)
+      end
+
+    end
+  end
+
 
       def acts_as_code(*codes_and_or_options)
         options               = codes_and_or_options.extract_options!
@@ -206,7 +223,7 @@ module CodeBox
         model_type  = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
         module_name  = code_attr.pluralize.camelize
-        codes_module = const_set(module_name, Module.new) 
+        codes_module = const_set(module_name, Module.new)
 
         # Create a constant for each code
         constants = {}

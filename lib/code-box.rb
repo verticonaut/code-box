@@ -10,6 +10,8 @@ module CodeBox
   	test_method_prefix:     '',
   }
 
+  module_function
+
   def i18n_model_segment=(segment)
     Config[:i18n_model_segment] = segment
   end
@@ -34,7 +36,4 @@ module CodeBox
     Config[:test_method_prefix]
   end
 
-  module_function :i18n_model_segment,     :i18n_model_segment=,
-                  :i18n_empty_options_key, :i18n_empty_options_key=,
-                  :test_method_prefix,     :test_method_prefix=
 end
