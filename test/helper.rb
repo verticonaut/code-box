@@ -3,6 +3,7 @@ require 'minitest/autorun'
 require 'fileutils'
 require 'active_record'
 require 'logger'
+require 'pry'
 
 # ------------------------------------------------------
 # Setup AR environment

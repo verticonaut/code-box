@@ -5,34 +5,24 @@ module CodeBox
 
   module ActsAsCode
 
-    def self.[](*options)
-      @_code_box_acts_as_code_opts = options.dup
+    def self.[](*args)
+      @_code_box_acts_as_code_args = args.dup
 
       self
     end
 
     def self.included(base)
       base.extend(ClassMethods)
-      base.acts_as_code(*@_code_box_acts_as_code_opts) if @_code_box_acts_as_code_opts
-
-
-      # i18n_segment = @opts._code_box_acts_as_code_opts.delete(:i18n_model_segment)
-
-      # instance_eval <<-RUBY_
-      #   class << self
-      #     def code_box_i18n_model_segment
-      #       #{i18n_segment.nil? ? CodeBox.i18n_model_segment : '#{i18n_segment}'}
-      #     end
-      #   end
-      # RUBY_
+      base.acts_as_code(*@_code_box_acts_as_code_args) if @_code_box_acts_as_code_args
     end
 
     module ClassMethods
-      def act_as_code_NEW(*options)
-        _module = ::CodeBox::ActsAsCode::Utilities.build_code_box_module(self, options: options)
+      def acts_as_code(*codes, **options)
+        _module = ::CodeBox::ActsAsCode::Utilities.build_code_box_module(self, codes: codes, options: options)
 
         self.include _module
         self.extend  _module::ClassMethods
+        (class << self; self; end).include _module::ClassInstanceMethods
       end
     end
 
@@ -47,7 +37,7 @@ module CodeBox
 
       module_function
 
-      def build_code_box_module(base, options: options)
+      def build_code_box_module(base, codes:, options: {})
         # create module constant…
         mod_name = "CodeBoxActsAsCode"
 
@@ -59,30 +49,21 @@ module CodeBox
         end
 
         # add module body…
-        add_module_body(mod, options)
+        add_module_body(base, mod, codes: codes, options: options)
 
         mod
       end
 
-      def add_module_body(mod, options)
-      end
+      def add_module_body(base, mod, codes:, options:)
+        opts                = DefaultOptions.merge(options)
+        code_attr           = opts[:code_attribute].to_s
+        position_attr       = opts[:position_attribute]
+        case_sensitive      = opts[:uniqueness_case_sensitive]
+        define_test_methods = opts[:define_test_methods]
+        i18n_model_segment  = opts.delete(:i18n_model_segment) || CodeBox.i18n_model_segment
+        model_type          = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
-    end
-  end
-
-
-      def acts_as_code(*codes_and_or_options)
-        options               = codes_and_or_options.extract_options!
-        codes                 = codes_and_or_options
-        opts                  = DefaultOptions.merge(options)
-        code_attr             = opts[:code_attribute].to_s
-        position_attr         = opts[:position_attribute]
-        case_sensitive        = opts[:uniqueness_case_sensitive]
-        define_test_methods   = opts[:define_test_methods]
-
-        model_type = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
-
-        class_eval <<-RUBY_
+        line_no = __LINE__; method_defs = <<-RUBY
           def translated_#{code_attr}(locale = I18n.locale, *options)
             locale_options = options.extract_options!
             locale_options.merge!({:locale => locale})
@@ -101,7 +82,7 @@ module CodeBox
               codes = Array(codes)
               translated_codes = codes.map { |code|
                 code_key = code.nil? ? :null_value : code
-                I18n.t("\#{self._code_box_i18n_model_segment}.values.\#{self.name.underscore}.#{code_attr}.\#{code_key}", options)
+                I18n.t("\#{i18n_model_segment}.values.\#{self.name.underscore}.#{code_attr}.\#{code_key}", options)
               }
 
               if options[:build] == :zip
@@ -150,10 +131,11 @@ module CodeBox
           def self.initialize_cache
             Hash[all.map{ |code| [code.#{code_attr}, code] }]
           end
-        RUBY_
 
-        instance_eval <<-CODE
-          class << self
+          module ClassMethods
+          end
+
+          module ClassInstanceMethods
             def _code_box_code_attr_name
               '#{code_attr.to_s}'
             end
@@ -166,7 +148,9 @@ module CodeBox
               @code_cache = nil
             end
           end
-        CODE
+        RUBY
+
+        mod.module_eval method_defs, __FILE__, line_no
 
         case model_type
           when :active_record
@@ -177,17 +161,17 @@ module CodeBox
               code_attr.to_s
             end
 
-            class_eval <<-CODE
+            base.class_eval <<-RUBY
               validates_presence_of   :#{code_attr}
               validates_uniqueness_of :#{code_attr}#{opts[:sti] ? ', :scope => :type' : ' '}, :case_sensitive => #{case_sensitive}
 
               default_scope -> { order('#{order_expression}') }
-            CODE
+            RUBY
 
           when :poro
             order_attr = position_attr ? position_attr.to_s : code_attr.to_s
 
-            class_eval <<-CODE
+            line_no = __LINE__; method_defs = <<-RUBY
               attr_accessor :#{code_attr}
 
               def initialize(#{code_attr})
@@ -209,21 +193,21 @@ module CodeBox
               def ==(other)
                 self.equal? other
               end
-            CODE
+            RUBY
+
+            mod.module_eval method_defs, __FILE__, line_no
           else
             raise ArgumentError, "'#{model_type}' is not a valid type. Use :active_record or :poro(default) instead"
         end
 
-        define_codes(*codes, define_test_methods) unless codes.empty?
+        define_codes(mod, codes, model_type, define_test_methods)
       end
 
-      def define_codes(*codes, define_test_methods)
+      def define_codes(mod, codes, model_tpe, define_test_methods)
         # --- Define the code constants...
-        code_attr   = self._code_box_code_attr_name
-        model_type  = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
-
+        code_attr    = self._code_box_code_attr_name
         module_name  = code_attr.pluralize.camelize
-        codes_module = const_set(module_name, Module.new)
+        codes_module = mod.const_set(module_name, Module.new)
 
         # Create a constant for each code
         constants = {}
@@ -245,33 +229,34 @@ module CodeBox
 
           codes.each do |code|
             method_name = "#{method_prefix}#{code.to_s}"
-            class_eval <<-CODE
+
+            line_no = __LINE__; method_defs = <<-RUBY
               def #{method_name}?
                 #{code_attr} == #{module_name}::#{code.to_s.camelize}
               end
-            CODE
+            RUBY
+            mod.module_eval method_defs, __FILE__, line_no
           end
         end
 
         return if model_type == :active_record
 
-
         # --- Define the code instance constants...
-
         constants = {}
         codes.each do |code|
           constant_name            = "#{code.to_s.camelize}"
-          constant                 = const_set(constant_name, self.new(code.to_s))
+          constant                 = mod.const_set(constant_name, self.new(code.to_s))
           constants[constant_name] = constant
         end
 
-        const_set('All', constants.values.compact)
+        mod.const_set('All', constants.values.compact)
 
-        class_eval <<-CODE
+        line_no = __LINE__; method_defs = <<-RUBY
           def self.all
             All
           end
-        CODE
+        RUBY
+        mod::ClassMethods.module_eval method_defs, __FILE__, line_no
       end
 
     end
