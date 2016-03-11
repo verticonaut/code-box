@@ -98,6 +98,8 @@ class TestCodeAttribute <MiniTest::Unit::TestCase
 
   # :type => :associated ----------------------------------------------------------------
   def test_code_attribute_lookup_associated
+    Codes::Country.delete_all
+
     code_ch  = Codes::Country.create(:code => 'CH', :name => 'Switzerland')
     code_de  = Codes::Country.create(:code => 'DE', :name => 'Germany')
 

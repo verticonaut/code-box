@@ -69,6 +69,7 @@ class TestActsAsCode < MiniTest::Unit::TestCase
 
   def test_code_translation
     code = Codes::CivilStatus.new('married')
+    I18n.locale = :en
 
     assert_equal code.translated_code, 'married'
     assert_equal code.translated_code(:de), 'verheiratet'
@@ -80,27 +81,27 @@ class TestActsAsCode < MiniTest::Unit::TestCase
 
     options_array = Codes::CivilStatus.build_select_options(include_empty: true)
     assert_equal options_array.size, 3
-    assert_equal options_array.first[1], nil 
+    assert_equal options_array.first[1], nil
   end
 
   def test_options_building_with_text_label
     options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'MyLabel' })
     assert_equal options_array.size, 3
-    assert_equal options_array.first[0], 'MyLabel' 
-    assert_equal options_array.first[1], nil 
+    assert_equal options_array.first[0], 'MyLabel'
+    assert_equal options_array.first[1], nil
   end
 
   def test_options_building_with_custom_value
     options_array = Codes::CivilStatus.build_select_options(include_empty: { value: 'all' })
     assert_equal options_array.size, 3
-    assert_equal options_array.first[1], 'all' 
+    assert_equal options_array.first[1], 'all'
   end
 
   def test_options_building_with_custom_label_and_value
     options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'Yaiii', value: 'all' })
     assert_equal options_array.size, 3
-    assert_equal options_array.first[0], 'Yaiii' 
-    assert_equal options_array.first[1], 'all' 
+    assert_equal options_array.first[0], 'Yaiii'
+    assert_equal options_array.first[1], 'all'
   end
 
 end
