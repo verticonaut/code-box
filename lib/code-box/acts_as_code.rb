@@ -19,7 +19,7 @@ module CodeBox
     module ClassMethods
       def acts_as_code(*codes, **options)
         _module = ::CodeBox::ActsAsCode::Utilities.build_code_box_module(self, codes: codes, options: options)
-
+binding.pry
         self.include _module
         self.extend  _module::ClassMethods
         (class << self; self; end).include _module::ClassInstanceMethods
@@ -172,10 +172,10 @@ module CodeBox
             order_attr = position_attr ? position_attr.to_s : code_attr.to_s
 
             line_no = __LINE__; method_defs = <<-RUBY
-              attr_accessor :#{code_attr}
+              # attr_accessor :#{code_attr}
 
               def initialize(#{code_attr})
-                self.#{code_attr} = #{code_attr}
+                @#{code_attr} = #{code_attr}
               end
 
               def self.all
@@ -194,18 +194,17 @@ module CodeBox
                 self.equal? other
               end
             RUBY
-
+binding.pry
             mod.module_eval method_defs, __FILE__, line_no
           else
             raise ArgumentError, "'#{model_type}' is not a valid type. Use :active_record or :poro(default) instead"
         end
 
-        define_codes(mod, codes, model_type, define_test_methods)
+        define_codes(mod, codes, model_type, define_test_methods, code_attr, model_type, base)
       end
 
-      def define_codes(mod, codes, model_tpe, define_test_methods)
+      def define_codes(mod, codes, model_tpe, define_test_methods, code_attr, model_type, base)
         # --- Define the code constants...
-        code_attr    = self._code_box_code_attr_name
         module_name  = code_attr.pluralize.camelize
         codes_module = mod.const_set(module_name, Module.new)
 
@@ -245,7 +244,8 @@ module CodeBox
         constants = {}
         codes.each do |code|
           constant_name            = "#{code.to_s.camelize}"
-          constant                 = mod.const_set(constant_name, self.new(code.to_s))
+          binding.pry
+          constant                 = mod.const_set(constant_name, base.new(code.to_s))
           constants[constant_name] = constant
         end
 
