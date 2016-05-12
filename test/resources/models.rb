@@ -22,54 +22,29 @@ module Codes
   end
 
   class CivilStatus
-    include CodeBox::ActsAsCode['single', 'married', :type => :poro]
-  end
+    include CodeBox::ActsAsCode
+    acts_as_code(:single, :married, i18n_model_segment: 'activerecord')
 
-  class CivilStatusUseDefine
-    include CodeBox::ActsAsCode[:type => :poro]
-
-    define_codes(:single, :married)
-  end
-
-  class AgerType
-    @@code_cache = {}
-    attr_accessor :code_id
-
-    def initialize(code)
-      @code_id = code
-      self.class.cache_code(self)
-    end
-
-    def self.cache_code(code_obj)
-      @@code_cache[code_obj.code_id] = code_obj
-    end
-
-    def self.for_code(code)
-      @@code_cache[code]
-    end
+    attr_accessor :code
   end
 
   class Country < ActiveRecord::Base
+    include CodeBox::ActsAsCode
     self.table_name = :codes_country
+
+    acts_as_code
 
     def self.for_code(code)
       where('code= ?', code).first
     end
   end
 
-
   class ArCode < ActiveRecord::Base
+    include CodeBox::ActsAsCode
     self.table_name = :codes_ar_code
-    include CodeBox::ActsAsCode[:type => :active_record]
+
+    acts_as_code
   end
 
-  class SegmentModel
-    include CodeBox::CodeAttribute[:i18n_model_segment => :model]
-
-    attr_accessor :gender_code
-
-    # i18n codes
-    code_attribute :gender
-  end
 
 end

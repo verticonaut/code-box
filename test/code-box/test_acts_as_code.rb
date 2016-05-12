@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestActsAsCode < MiniTest::Unit::TestCase
+class TestActsAsCode < MiniTest::Test
 
   def test_all_methods
     assert_equal 2, Codes::CivilStatus.all.size
@@ -22,7 +22,7 @@ class TestActsAsCode < MiniTest::Unit::TestCase
 
   def test_ar_code_lookup
     Codes::ArCode.delete_all
-    code_1 = Codes::ArCode.create(:code => 'code_1', :name => "Code_1_name")
+    _code_1 = Codes::ArCode.create(:code => 'code_1', :name => "Code_1_name")
     code_2 = Codes::ArCode.create(:code => 'code_2', :name => "Code_2_name")
 
     assert_equal code_2, Codes::ArCode.for_code('code_2')
@@ -73,35 +73,6 @@ class TestActsAsCode < MiniTest::Unit::TestCase
 
     assert_equal code.translated_code, 'married'
     assert_equal code.translated_code(:de), 'verheiratet'
-  end
-
-  def test_options_building
-    options_array = Codes::CivilStatus.build_select_options
-    assert_equal options_array.size, 2
-
-    options_array = Codes::CivilStatus.build_select_options(include_empty: true)
-    assert_equal options_array.size, 3
-    assert_equal options_array.first[1], nil
-  end
-
-  def test_options_building_with_text_label
-    options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'MyLabel' })
-    assert_equal options_array.size, 3
-    assert_equal options_array.first[0], 'MyLabel'
-    assert_equal options_array.first[1], nil
-  end
-
-  def test_options_building_with_custom_value
-    options_array = Codes::CivilStatus.build_select_options(include_empty: { value: 'all' })
-    assert_equal options_array.size, 3
-    assert_equal options_array.first[1], 'all'
-  end
-
-  def test_options_building_with_custom_label_and_value
-    options_array = Codes::CivilStatus.build_select_options(include_empty: { label: 'Yaiii', value: 'all' })
-    assert_equal options_array.size, 3
-    assert_equal options_array.first[0], 'Yaiii'
-    assert_equal options_array.first[1], 'all'
   end
 
 end

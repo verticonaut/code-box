@@ -16,7 +16,8 @@ module CodeBox
         position_attr       = opts[:position_attribute]
         case_sensitive      = opts[:uniqueness_case_sensitive]
         define_test_methods = opts[:define_test_methods]
-        model_type          = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
+        i18n_model_segment  = opts[:i18n_model_segment] || ::CodeBox::ActsAsCode.i18n_model_segment
+        model_type          = base.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
 
         line_no = __LINE__; method_defs = <<-RUBY
           def translated_#{code_attr}(locale = I18n.locale, *options)
@@ -34,7 +35,7 @@ module CodeBox
               codes = Array(codes)
               translated_codes = codes.map do |code|
                 code_key = code.nil? ? :null_value : code
-                I18n.t(CodeBox::Utilities.i18n_attribute_value_key(base, code_attr, code_key), options)
+                I18n.t(code_key, options.merge(scope: "#{i18n_model_segment}.values.#{base.name.underscore}.#{code_attr}"))
               end
 
               if options[:build] == :zip
@@ -64,12 +65,15 @@ module CodeBox
           end
         RUBY
 
-        mod.module_eval method_defs, __FILE__, line_no
+        _module.module_eval method_defs, __FILE__, line_no
+
+        base.include _module
+        base.extend  _module::ClassMethods
 
         case model_type
           when :active_record
 
-            order_expression = if self.attribute_names.include?(position_attr) then
+            order_expression = if base.attribute_names.include?(position_attr) then
               "coalesce(#{position_attr.to_s}, #{code_attr.to_s})"
             else
               code_attr.to_s
@@ -81,6 +85,7 @@ module CodeBox
 
               default_scope -> { order('#{order_expression}') }
             RUBY
+
           when :poro
             _order_attr = position_attr ? position_attr.to_s : code_attr.to_s
 
@@ -92,7 +97,7 @@ module CodeBox
               end
 
               def self.all
-                raise 'Class responsibility - implement method .all returning all code models.'
+                All
               end
 
               def hash
@@ -107,15 +112,74 @@ module CodeBox
                 self.equal? other
               end
             RUBY
-            mod.module_eval method_defs, __FILE__, line_no
+            base.class_eval method_defs, __FILE__, line_no
+
           else
             raise ArgumentError, "'#{model_type}' is not a valid type. Use :active_record or :poro(default) instead"
         end
 
-        define_codes(mod, codes, model_type, define_test_methods, code_attr, model_type, base)
+        define_codes(_module, codes, model_type, define_test_methods, code_attr, model_type, base)
       end
 
-      module_function :add_module_body
+      def define_codes(_module, codes, model_tpe, define_test_methods, code_attr, model_type, base)
+        # --- Define the code constants...
+        module_name  = code_attr.pluralize.camelize
+        codes_module = _module.const_set(module_name, Module.new)
+
+        codes = base.all.map(&code_attr.to_sym) if model_type == :active_record
+
+        # Create a constant for each code
+        constants = {}
+        codes.each do |code|
+          constant_name            = code.to_s.camelize
+          constant                 = codes_module.const_set(constant_name, code.to_s)
+          constants[constant_name] = constant
+        end
+
+        codes_module.const_set('All', constants.values.compact)
+
+
+        # Define test methods for each code like e.g.
+        # def married?
+        #   code == Codes::Married
+        # end
+        if define_test_methods
+          method_prefix = CodeBox.test_method_prefix
+
+          codes.each do |code|
+            method_name = "#{method_prefix}#{code.to_s}"
+
+            line_no = __LINE__; method_defs = <<-RUBY
+              def #{method_name}?
+                #{code_attr} == #{module_name}::#{code.to_s.camelize}
+              end
+            RUBY
+            _module.module_eval method_defs, __FILE__, line_no
+          end
+        end
+
+        return if model_type == :active_record # so far…
+
+        # --- Define the code instance constants...
+        constants = {}
+        codes.each do |code|
+          constant_name            = "#{code.to_s.camelize}"
+          constant                 = _module.const_set(constant_name, base.new(code.to_s))
+          constants[constant_name] = constant
+        end
+
+        _module.const_set('All', constants.values.compact)
+
+        line_no = __LINE__; method_defs = <<-RUBY
+          def self.all
+            "#{_module}".constantize::All
+          end
+        RUBY
+        base.instance_eval method_defs, __FILE__, line_no
+      end
+
+      module_function :add_module_body, :define_codes
+
     end
   end
 end

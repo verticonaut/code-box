@@ -216,31 +216,6 @@ In addition `acts_as_code` defines the following methods:
     Translates a single code if `code` is a code, an array of codes of `code` is an array.
     If code is an array the option :build => :zip can be used to build a select option capable array (e.g `[['Switzerland', 'SUI'],['Germany', 'GER'],['Denmark', 'DEN']]`)
 
-  * `.build_select_options(codes_and_options)`  
-    Build an options array from the passed codes (all codes if no codes are passed). Add an empty option at the beginning if the option `:include_empty` is passed. If `:include_empty` is…
-
-    * `true`, then options label is derived from the I18n tranlsation of the key defined in CodeBox.i18n_empty_options_key (default is `shared.options.pls_select` - you can change this default). The value of the option is `nil` by default.
-    * `false` then no empty option is defined (default)
-    * a String then the string is used as label. The value of the option is `nil` by default.
-    * a String starting with `i18n.` the the string is considered as a tranlation key (without the `i18n.` part). Value is nil by default.
-    * is a Hash then the value is take from the Hashs value for key `:value` (nil if not present), and the label is taken from the value of key `:label` (default CodeBox.i18n_empty_option_key). If a String is present it is interpreted as a plain label or I18n key as described above.
-
-    ``Examples
-
-    .build_select_options(include_empty: true)
-
-    is same as …
-
-    .build_select_options(include_empty: {})    
-
-    is same as …
-
-    .build_select_options(include_empty: {label: nil, value: nil})    
-
-    is same as …
-
-    .build_select_options(include_empty: {label: '<your default key in CodeBox.i18n_empty_options_key>', value: nil})    
-
   * `.clear_code_cache`  
     Clears the cache so its build up again lazy when needed form all codes.
 
