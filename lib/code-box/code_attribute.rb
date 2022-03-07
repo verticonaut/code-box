@@ -69,7 +69,9 @@ module CodeBox
                   class_eval <<-RUBY_
                     # getter
                     def #{code_name}
-                      codes = #{code_attr_name}.split(',').map(&:strip)
+                      code_value = #{code_attr_name}
+                      return [] if code_value
+                      codes = code_value.split(',').map(&:strip)
                       codes.map{ |code| #{code_class_name}.for_code(code) }
                     end
 
