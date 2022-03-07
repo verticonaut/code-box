@@ -70,7 +70,7 @@ module CodeBox
                     # getter
                     def #{code_name}
                       code_value = #{code_attr_name}
-                      return [] if code_value
+                      return [] if code_value.nil?
                       codes = code_value.split(',').map(&:strip)
                       codes.map{ |code| #{code_class_name}.for_code(code) }
                     end

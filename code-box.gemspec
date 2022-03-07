@@ -14,9 +14,10 @@ Gem::Specification.new do |gem|
   gem.homepage      = %q{http://github.com/verticonaut/code-box}
 
   gem.add_development_dependency  "activerecord", "~> 4.0"
-  gem.add_development_dependency  "sqlite3"
+  gem.add_development_dependency  "sqlite3", "~> 1.3.6"
   gem.add_development_dependency  "rake"
   gem.add_development_dependency  "minitest"
+  gem.add_development_dependency  "bigdecimal", "~> 1.4.4"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
