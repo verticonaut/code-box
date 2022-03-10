@@ -5,7 +5,7 @@ require File.expand_path('../lib/code-box/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = 'code-box'
   gem.version       = CodeBox::VERSION
-  gem.license       = 'BSD 2-Clause'
+  gem.license       = 'BSD-2-Clause'
 
   gem.authors       = ["Martin Schweizer"]
   gem.email         = ["contact@verticonaut.me"]
