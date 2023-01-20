@@ -8,14 +8,12 @@ require 'logger'
 # Setup AR environment
 # ------------------------------------------------------
 
-# Define connection info
-ActiveRecord::Base.configurations = {
-  "test" => {
-    :adapter  => 'sqlite3',
-    :database => ':memory:'
+ActiveRecord::Base.establish_connection(
+  {
+    adapter:   "sqlite3",
+    database: ":memory:",
   }
-}
-ActiveRecord::Base.establish_connection("test")
+)
 
 # Setup logger
 tmp = File.expand_path('../../tmp', __FILE__)

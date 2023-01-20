@@ -1,5 +1,4 @@
-
-# encoding: utf-8
+# frozen_string_literal: true
 
 module CodeBox
 
@@ -34,8 +33,8 @@ module CodeBox
       instance_eval <<-RUBY_
         class << base
           def _code_box_i18n_model_segment
-            return CodeBox.i18n_model_segment if "#{self._code_box_i18n_model_segment}".empty?
-            "#{self._code_box_i18n_model_segment}"
+            return CodeBox.i18n_model_segment if "#{_code_box_i18n_model_segment}".empty?
+            "#{_code_box_i18n_model_segment}"
           end
         end
       RUBY_
@@ -47,11 +46,11 @@ module CodeBox
 
     module ClassMethods
       DefaultOptions = {
-          code_attribute:            'code',
-          sti:                       false,
-          uniqueness_case_sensitive: true,
-          position_attr:             :position,
-          define_test_methods:       true,
+        code_attribute:            "code",
+        sti:                       false,
+        uniqueness_case_sensitive: true,
+        position_attr:             :position,
+        define_test_methods:       true,
       }
 
       def acts_as_code(*codes_and_or_options)
@@ -63,7 +62,7 @@ module CodeBox
         case_sensitive        = opts[:uniqueness_case_sensitive]
         define_test_methods   = opts[:define_test_methods]
 
-        model_type = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
+        model_type = ancestors.include?("ActiveRecord::Base".constantize) ? :active_record : :poro
 
         class_eval <<-RUBY_
           def translated_#{code_attr}(locale = I18n.locale, *options)
@@ -123,7 +122,7 @@ module CodeBox
             # If starts with 'i18n.' it is considered an I18n key, else the label itself
             options = translate_#{code_attr}(codes, build: :zip)
             if include_empty
-              label = I18n.t(label[5..-1], locale: locale) if label.starts_with?('i18n.')
+              label = I18n.t(label[5..-1], locale: locale) if label.start_with?('i18n.')
               options.unshift [label, value]
             end
 
@@ -138,7 +137,7 @@ module CodeBox
         instance_eval <<-CODE
           class << self
             def _code_box_code_attr_name
-              '#{code_attr.to_s}'
+              code_attr.to_s
             end
 
             def code_cache
@@ -155,7 +154,7 @@ module CodeBox
           when :active_record
 
             order_expression = if self.attribute_names.include?(position_attr) then
-              "coalesce(#{position_attr.to_s}, #{code_attr.to_s})"
+              "coalesce(#{position_attr}, #{code_attr})"
             else
               code_attr.to_s
             end
@@ -168,7 +167,7 @@ module CodeBox
             CODE
 
           when :poro
-            order_attr = position_attr ? position_attr.to_s : code_attr.to_s
+            _order_attr = position_attr ? position_attr.to_s : code_attr.to_s
 
             class_eval <<-CODE
               attr_accessor :#{code_attr}
@@ -202,11 +201,11 @@ module CodeBox
 
       def define_codes(*codes, define_test_methods)
         # --- Define the code constants...
-        code_attr   = self._code_box_code_attr_name
-        model_type  = self.ancestors.include?('ActiveRecord::Base'.constantize) ? :active_record : :poro
+        code_attr   = _code_box_code_attr_name
+        model_type  = ancestors.include?("ActiveRecord::Base".constantize) ? :active_record : :poro
 
         module_name  = code_attr.pluralize.camelize
-        codes_module = const_set(module_name, Module.new) 
+        codes_module = const_set(module_name, Module.new)
 
         # Create a constant for each code
         constants = {}
@@ -216,7 +215,7 @@ module CodeBox
           constants[constant_name] = constant
         end
 
-        codes_module.const_set('All', constants.values.compact)
+        codes_module.const_set("All", constants.values.compact)
 
 
         # Define test methods for each code like e.g.
@@ -243,12 +242,12 @@ module CodeBox
 
         constants = {}
         codes.each do |code|
-          constant_name            = "#{code.to_s.camelize}"
-          constant                 = const_set(constant_name, self.new(code.to_s))
+          constant_name            = code.to_s.camelize
+          constant                 = const_set(constant_name, new(code.to_s))
           constants[constant_name] = constant
         end
 
-        const_set('All', constants.values.compact)
+        const_set("All", constants.values.compact)
 
         class_eval <<-CODE
           def self.all

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 # ------------------------------------------------------
 # Defined the respective AR Models
 # ------------------------------------------------------
 module Codes
-
   class SampleClass < ActiveRecord::Base
     self.table_name = :codes_sample_class
 
@@ -10,23 +11,23 @@ module Codes
 
     # i18n codes
     code_attribute :gender
-    code_attribute :country,      :lookup_type => :i18n, :code_attribute_suffix => 'iso'
+    code_attribute :country,      lookup_type: :i18n, code_attribute_suffix: "iso"
 
     # lookup codes
-    code_attribute :civil_status, :lookup_type => :lookup, :class_name => 'Codes::CivilStatus'
-    code_attribute :ager_type,    :lookup_type => :lookup, :foreign_code_attribute => 'code_id'
+    code_attribute :civil_status, lookup_type: :lookup, class_name: "Codes::CivilStatus"
+    code_attribute :ager_type,    lookup_type: :lookup, foreign_code_attribute: "code_id"
 
-    code_attribute :country_2,    :lookup_type => :associated, :class_name => 'Codes::Country'
+    code_attribute :country_2,    lookup_type: :associated, class_name: "Codes::Country"
 
-    code_attribute :countries,    :lookup_type => :lookup, :class_name => 'Codes::Country', :enum => :set
+    code_attribute :countries,    lookup_type: :lookup, class_name: "Codes::Country", enum: :set
   end
 
   class CivilStatus
-    include CodeBox::ActsAsCode['single', 'married', :type => :poro]
+    include CodeBox::ActsAsCode["single", "married", type: :poro]
   end
 
   class CivilStatusUseDefine
-    include CodeBox::ActsAsCode[:type => :poro]
+    include CodeBox::ActsAsCode[type: :poro]
 
     define_codes(:single, :married)
   end
@@ -53,23 +54,22 @@ module Codes
     self.table_name = :codes_country
 
     def self.for_code(code)
-      where('code= ?', code).first
+      where("code= ?", code).first
     end
   end
 
 
   class ArCode < ActiveRecord::Base
     self.table_name = :codes_ar_code
-    include CodeBox::ActsAsCode[:type => :active_record]
+    include CodeBox::ActsAsCode[type: :active_record]
   end
 
   class SegmentModel
-    include CodeBox::CodeAttribute[:i18n_model_segment => :model]
+    include CodeBox::CodeAttribute[i18n_model_segment: :model]
 
     attr_accessor :gender_code
 
     # i18n codes
     code_attribute :gender
   end
-
 end
